@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🌬️ 第1章 圧力と大気圧</title>
+<style>
+:root{
+  --pri:#0284c7;--pri-d:#075985;--pri-l:#e0f2fe;
+  --acc:#0e7490;--acc-d:#155e75;--acc-bg:#ecfeff;
+  --gray:#6b7280;--card:#fff;
+  --radius:14px;--shadow:0 4px 18px rgba(0,0,0,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#f0f9ff;font-family:'BIZ UDGothic','Helvetica Neue',Arial,'Hiragino Sans','Yu Gothic',sans-serif;color:#1e293b;}
+header{background:linear-gradient(135deg,var(--pri-d),var(--pri));color:#fff;text-align:center;padding:28px 20px 22px;}
+header h1{font-size:clamp(1.3rem,4vw,2rem);font-weight:900;letter-spacing:.04em;}
+header p{margin-top:6px;font-size:.93rem;opacity:.88;}
+.units{max-width:860px;margin:30px auto;padding:0 16px;}
+.unit-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:32px;overflow:hidden;}
+.unit-header{background:linear-gradient(90deg,var(--pri-d),var(--pri));color:#fff;padding:14px 22px;display:flex;align-items:center;gap:12px;}
+.unit-num{background:#fff;color:var(--pri-d);font-weight:900;font-size:1.1rem;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.unit-header h2{font-size:1.1rem;font-weight:800;}
+.unit-body{padding:22px;}
+.exp-img{margin:14px 0;text-align:center;}
+.exp-img img{max-width:min(100%,520px);border-radius:10px;margin:6px auto;display:block;}
+.exp-img svg{max-width:100%;height:auto;}
+.exp-img .cap{font-size:.82rem;color:var(--gray);margin-top:2px;}
+.exp-text{line-height:1.95;font-size:.97rem;margin:10px 0;}
+.exp-text p{margin-bottom:.85em;}
+.exp-text h3{font-size:.97rem;color:var(--pri-d);margin:1em 0 .5em;border-left:3px solid var(--pri);padding-left:8px;font-weight:800;}
+.pt-box{background:#dcfce7;border-left:4px solid #16a34a;border-radius:0 8px 8px 0;padding:11px 15px;margin:10px 0;font-size:.91rem;line-height:1.8;}
+.warn-box{background:#fee2e2;border-left:4px solid #dc2626;border-radius:0 8px 8px 0;padding:11px 15px;margin:10px 0;font-size:.91rem;line-height:1.8;}
+.amber-box{background:#fef3c7;border-left:4px solid #b45309;border-radius:0 8px 8px 0;padding:11px 15px;margin:10px 0;font-size:.91rem;line-height:1.8;}
+.info-box{background:#f0fdff;border-left:4px solid #0e7490;border-radius:0 8px 8px 0;padding:11px 15px;margin:10px 0;font-size:.91rem;line-height:1.8;}
+.eq-box{background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:14px;margin:10px 0;text-align:center;}
+.eq-box .eq{font-size:1rem;font-weight:800;color:var(--pri-d);letter-spacing:.03em;line-height:1.9;}
+.exp-tbl{width:100%;border-collapse:collapse;font-size:.85rem;margin:10px 0;}
+.exp-tbl th{background:var(--pri);color:#fff;padding:8px 10px;text-align:center;}
+.exp-tbl td{padding:8px 10px;border-bottom:1px solid #e5e7eb;vertical-align:top;line-height:1.65;text-align:center;}
+.exp-tbl tr:nth-child(even) td{background:#f9fafb;}
+.exp-tbl .nc{font-weight:700;white-space:nowrap;background:#f0f9ff;}
+.exp-tbl.small{font-size:.8rem;}
+.exp-tbl.small td,.exp-tbl.small th{padding:5px 6px;}
+.tbl-wrap{overflow-x:auto;}
+.kw-list{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 16px;}
+.kw{background:var(--pri-l);color:var(--pri-d);border-radius:20px;padding:4px 14px;font-size:.88rem;font-weight:700;}
+.mini-btn{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;background:var(--acc-bg);border:2.5px solid var(--acc);color:var(--acc-d);font-size:.97rem;font-weight:800;padding:10px 22px;border-radius:40px;margin:14px 0 0;transition:.2s;}
+.mini-btn:hover{background:var(--acc);color:#fff;}
+.mini-section{display:none;margin-top:16px;background:#f0fdfa;border:2px solid #99f6e4;border-radius:12px;padding:18px;}
+.mini-section.open{display:block;}
+.q-block{margin-bottom:26px;}
+.q-block h4{font-size:.98rem;font-weight:800;color:var(--pri-d);margin-bottom:10px;line-height:1.7;}
+.mchips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0;}
+.mchip{background:#fff;border:2.5px solid var(--acc);color:var(--acc-d);border-radius:20px;padding:5px 16px;font-size:.93rem;font-weight:700;cursor:pointer;transition:.18s;font-family:inherit;}
+.mchip:hover{background:var(--acc);color:#fff;}
+.mchip.used{opacity:.35;pointer-events:none;}
+.mdz-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:8px 0;}
+.mdz{display:inline-flex;align-items:center;justify-content:center;min-width:80px;height:36px;border:2.5px dashed var(--acc);border-radius:8px;padding:0 10px;font-size:.93rem;font-weight:700;cursor:pointer;color:var(--acc-d);transition:.18s;background:#fff;}
+.mdz.filled{border-style:solid;background:#cffafe;}
+.mdz.correct{border-color:#16a34a;background:#dcfce7;color:#166534;}
+.mdz.wrong{border-color:#dc2626;background:#fee2e2;color:#991b1b;}
+.mdz-label{font-size:.9rem;color:#374151;}
+.choice-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0;}
+@media(max-width:480px){.choice-list{grid-template-columns:1fr;}}
+.choice-btn{padding:10px 14px;border:2.5px solid #d1d5db;border-radius:10px;background:#fff;font-size:.93rem;cursor:pointer;text-align:left;transition:.18s;font-family:inherit;color:#1e293b;line-height:1.6;}
+.choice-btn svg{vertical-align:middle;margin-right:6px;}
+.choice-btn:hover{border-color:var(--pri);background:var(--pri-l);}
+.choice-btn.correct{border-color:#16a34a;background:#dcfce7;color:#166534;font-weight:700;}
+.choice-btn.wrong{border-color:#dc2626;background:#fee2e2;color:#991b1b;}
+.choice-btn:disabled{cursor:default;}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.check-btn{background:var(--pri);color:#fff;border:none;border-radius:22px;padding:8px 22px;font-size:.93rem;font-weight:700;cursor:pointer;transition:.18s;font-family:inherit;}
+.check-btn:hover{background:var(--pri-d);}
+.sample-btn{background:#fff;color:var(--gray);border:2px solid #d1d5db;border-radius:22px;padding:8px 22px;font-size:.93rem;font-weight:700;cursor:pointer;transition:.18s;font-family:inherit;}
+.sample-btn:hover{background:#f3f4f6;}
+.msample{display:none;background:#fef9c3;border:1.5px solid #fbbf24;border-radius:8px;padding:8px 14px;font-size:.9rem;margin-top:8px;line-height:1.8;}
+.msample.show{display:block;}
+.fb-msg{font-size:.9rem;margin-top:6px;font-weight:600;}
+.mini-score-row{display:flex;gap:6px;align-items:center;margin-bottom:10px;}
+.mini-score-pip{width:14px;height:14px;border-radius:50%;background:#e5e7eb;border:2px solid #d1d5db;transition:.3s;}
+.mini-score-pip.pass{background:#16a34a;border-color:#166534;}
+.pass-banner{display:none;background:linear-gradient(90deg,#166534,#16a34a);color:#fff;text-align:center;padding:16px;border-radius:10px;margin-top:16px;font-size:1.1rem;font-weight:900;}
+.pass-banner.show{display:block;}
+canvas#confetti-canvas{position:fixed;top:0;left:0;pointer-events:none;width:100%;height:100%;z-index:9999;}
+.q-img{max-width:100%;border-radius:10px;margin:6px auto 10px;display:block;}
+.q-fig{text-align:center;margin:6px 0 10px;}
+.q-fig svg{max-width:100%;height:auto;}
+.q-note{font-size:.9rem;color:#334155;margin-bottom:6px;line-height:1.9;}
+.src{font-size:.78rem;color:#6b7280;font-weight:600;margin-left:6px;}
+.chap-nav{max-width:860px;margin:0 auto 40px;padding:0 16px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;}
+.chap-nav a{background:#fff;border:2px solid var(--pri);color:var(--pri-d);text-decoration:none;font-weight:800;padding:8px 18px;border-radius:24px;font-size:.92rem;}
+.chap-nav a.now{background:var(--pri);color:#fff;}
+.exp-tbl td b{color:var(--pri-d);}
+.sym-row{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin:10px 0;}
+.sym-item{text-align:center;font-size:.82rem;line-height:1.5;min-width:84px;}
+.sym-item svg{display:block;margin:0 auto 2px;}
+</style>
+</head>
+<body>
+<canvas id="confetti-canvas"></canvas>
+<header>
+  <h1>🌬️ 第1章 圧力と大気圧</h1>
+  <p>圧力・大気圧・hPa</p>
+</header>
+<div class="units">
+<div class="unit-card" id="card_mt1">
+  <div class="unit-header">
+    <div class="unit-num">1</div>
+    <h2>圧力ってなに？</h2>
+  </div>
+  <div class="unit-body">
+    <div class="exp-text"><p>スポンジの上に物をのせると、へこみますね。このへこみ方のちがいを表すのが<b>圧力</b>です。</p><p>同じ重さでも、<b>面積がせまいほど</b>へこみ方は大きくなります。たとえば、とがった針は軽い力でもささりますね。</p></div><div class="exp-img"><img src="img/zu01.png" alt="スポンジに物をのせた図"></div><div class="exp-img"><img src="img/zu02.png" alt="こびとの図"></div><div class="pt-box"><b>【重要】</b><br>圧力とは「<b>1m²（面積）あたりに、はたらく力の大きさ</b>」のことです。<br>圧力の単位は <b>Pa（パスカル）</b> または N/m² です。<br><b>圧力(Pa) ＝ 力(N) ÷ 面積(m²)</b></div><div class="exp-text"><p>力の単位は <b>N（ニュートン）</b>です。<b>100gの物体にはたらく重力が1N</b>です。</p></div>
+    <button class="mini-btn" onclick="toggleMini('mt1')">
+      🧪 ミニテストに挑戦！
+      <span id="mini-badge-mt1" style="background:#fff;color:var(--acc-d);border-radius:12px;padding:2px 10px;font-size:.82rem;margin-left:8px;">0 / 5</span>
+    </button>
+    <div class="mini-section" id="mini_mt1">
+      <div class="mini-score-row"><div class="mini-score-pip" id="pip_mt1_1"></div><div class="mini-score-pip" id="pip_mt1_2"></div><div class="mini-score-pip" id="pip_mt1_3"></div><div class="mini-score-pip" id="pip_mt1_4"></div><div class="mini-score-pip" id="pip_mt1_5"></div></div>
+      <div class="q-block" id="qblock_mt1_q1">
+  <h4>Q1. □に入る言葉を選びましょう。</h4>
+  
+  <p class="q-note">圧力は、1m²あたりにはたらく①の大きさです。同じ力でも面積がせまいと圧力は②なります。</p>
+  <div class="mchips" id="chips_mt1_q1"></div>
+  <div class="mdz-row"><span class="mdz-label">①</span><span class="mdz" id="mdz_mt1_q1_0" onclick="returnChip('mt1',1,0)">&nbsp;</span><span class="mdz-label">②</span><span class="mdz" id="mdz_mt1_q1_1" onclick="returnChip('mt1',1,1)">&nbsp;</span></div>
+  <div class="btn-row">
+    <button class="check-btn" onclick="checkMiniBank('mt1',1)">✔ 答え合わせ</button>
+    <button class="sample-btn" onclick="showSample('mt1',1)">💡 答えを見る</button>
+  </div>
+  <div class="fb-msg" id="fb_mt1_q1"></div>
+  <div class="msample" id="samp_mt1_q1">答え: ①=力 / ②=大きく</div>
+</div><div class="q-block" id="qblock_mt1_q2">
+  <h4>Q2. 圧力を求める式はどれでしょう。</h4>
+  
+  <div class="choice-list" id="choices_mt1_q2">
+    <button class="choice-btn" onclick="pick4('mt1',2,0,0,'mt1_q2')">ア：力 ÷ 面積</button>
+    <button class="choice-btn" onclick="pick4('mt1',2,1,0,'mt1_q2')">イ：力 × 面積</button>
+    <button class="choice-btn" onclick="pick4('mt1',2,2,0,'mt1_q2')">ウ：面積 ÷ 力</button>
+    <button class="choice-btn" onclick="pick4('mt1',2,3,0,'mt1_q2')">エ：力 ＋ 面積</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt1_q2"></div>
+  <div class="msample" id="samp_mt1_q2">正解: ア：力 ÷ 面積　圧力＝力(N)÷面積(m²)です。</div>
+</div><div class="q-block" id="qblock_mt1_q3">
+  <h4>Q3. 同じ重さの物を、せまい面積でスポンジにのせました。へこみ方は？</h4>
+  
+  <div class="choice-list" id="choices_mt1_q3">
+    <button class="choice-btn" onclick="pick4('mt1',3,0,1,'mt1_q3')">ア：小さくなる</button>
+    <button class="choice-btn" onclick="pick4('mt1',3,1,1,'mt1_q3')">イ：大きくなる</button>
+    <button class="choice-btn" onclick="pick4('mt1',3,2,1,'mt1_q3')">ウ：変わらない</button>
+    <button class="choice-btn" onclick="pick4('mt1',3,3,1,'mt1_q3')">エ：へこまない</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt1_q3"></div>
+  <div class="msample" id="samp_mt1_q3">正解: イ：大きくなる　面積がせまいほど、1m²あたりの力（圧力）が大きくなります。</div>
+</div><div class="q-block" id="qblock_mt1_q4">
+  <h4>Q4. 100gの物体にはたらく重力は何Nでしょう。</h4>
+  
+  <div class="choice-list" id="choices_mt1_q4">
+    <button class="choice-btn" onclick="pick4('mt1',4,0,0,'mt1_q4')">ア：1N</button>
+    <button class="choice-btn" onclick="pick4('mt1',4,1,0,'mt1_q4')">イ：100N</button>
+    <button class="choice-btn" onclick="pick4('mt1',4,2,0,'mt1_q4')">ウ：0.1N</button>
+    <button class="choice-btn" onclick="pick4('mt1',4,3,0,'mt1_q4')">エ：10N</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt1_q4"></div>
+  <div class="msample" id="samp_mt1_q4">正解: ア：1N　100gの重力が1Nです。300gなら3Nです。</div>
+</div><div class="q-block" id="qblock_mt1_q5">
+  <h4>Q5. 力の単位と圧力の単位を答えましょう。</h4>
+  
+  <p class="q-note">力の単位は①、圧力の単位は②（または N/m²）です。</p>
+  <div class="mchips" id="chips_mt1_q5"></div>
+  <div class="mdz-row"><span class="mdz-label">①</span><span class="mdz" id="mdz_mt1_q5_0" onclick="returnChip('mt1',5,0)">&nbsp;</span><span class="mdz-label">②</span><span class="mdz" id="mdz_mt1_q5_1" onclick="returnChip('mt1',5,1)">&nbsp;</span></div>
+  <div class="btn-row">
+    <button class="check-btn" onclick="checkMiniBank('mt1',5)">✔ 答え合わせ</button>
+    <button class="sample-btn" onclick="showSample('mt1',5)">💡 答えを見る</button>
+  </div>
+  <div class="fb-msg" id="fb_mt1_q5"></div>
+  <div class="msample" id="samp_mt1_q5">答え: ①=N / ②=Pa</div>
+</div>
+      <div class="pass-banner" id="pass_mt1">🎉 この単元クリア！すばらしい！ 🎉</div>
+    </div>
+  </div>
+</div>
+<div class="unit-card" id="card_mt2">
+  <div class="unit-header">
+    <div class="unit-num">2</div>
+    <h2>圧力の計算</h2>
+  </div>
+  <div class="unit-body">
+    <div class="exp-text"><p>圧力を計算するときは、<b>単位をそろえる</b>のが大切です。</p><p>① 質量(g)を÷100して、力(N)にします。<br>② 面積(cm²)を÷10000して、m²にします。<br>③ 力 ÷ 面積 で圧力(Pa)を求めます。</p></div><div class="pt-box"><b>【重要】</b><br><b>1cm² ＝ 1/10000 m²</b>（cm²をm²にするときは ÷10000）<br>例：200gの物体が10cm²の面でスポンジをおす。<br>力＝200÷100＝2N　面積＝10÷10000＝10/10000 m²<br>圧力＝2÷(10/10000)＝<b>2000Pa</b></div><div class="exp-img"><img src="img/zu03.png" alt="Ⓐ200g Ⓑ300g Ⓒ1kgの立方体"></div><div class="exp-img"><img src="img/zu04.png" alt="立方体3個"></div><div class="exp-img"><img src="img/zu05.png" alt="直方体1200g"></div><div class="exp-img"><img src="img/zu06.png" alt="直方体をスポンジにのせた図"></div><div class="exp-text"><p>直方体は、<b>下にする面によって面積が変わる</b>ので、圧力も変わります。面積が一番小さい面を下にすると、圧力は一番大きくなります。</p></div>
+    <button class="mini-btn" onclick="toggleMini('mt2')">
+      🧪 ミニテストに挑戦！
+      <span id="mini-badge-mt2" style="background:#fff;color:var(--acc-d);border-radius:12px;padding:2px 10px;font-size:.82rem;margin-left:8px;">0 / 5</span>
+    </button>
+    <div class="mini-section" id="mini_mt2">
+      <div class="mini-score-row"><div class="mini-score-pip" id="pip_mt2_1"></div><div class="mini-score-pip" id="pip_mt2_2"></div><div class="mini-score-pip" id="pip_mt2_3"></div><div class="mini-score-pip" id="pip_mt2_4"></div><div class="mini-score-pip" id="pip_mt2_5"></div></div>
+      <div class="q-block" id="qblock_mt2_q1">
+  <h4>Q1. 600Nの力が0.2m²にはたらきます。圧力は？</h4>
+  
+  <div class="choice-list" id="choices_mt2_q1">
+    <button class="choice-btn" onclick="pick4('mt2',1,0,2,'mt2_q1')">ア：300Pa</button>
+    <button class="choice-btn" onclick="pick4('mt2',1,1,2,'mt2_q1')">イ：30000Pa</button>
+    <button class="choice-btn" onclick="pick4('mt2',1,2,2,'mt2_q1')">ウ：3000Pa</button>
+    <button class="choice-btn" onclick="pick4('mt2',1,3,2,'mt2_q1')">エ：120Pa</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt2_q1"></div>
+  <div class="msample" id="samp_mt2_q1">正解: ウ：3000Pa　600÷0.2＝3000Pa</div>
+</div><div class="q-block" id="qblock_mt2_q2">
+  <h4>Q2. 200gの物体が10cm²の面にのっています。圧力は？</h4>
+  
+  <div class="choice-list" id="choices_mt2_q2">
+    <button class="choice-btn" onclick="pick4('mt2',2,0,2,'mt2_q2')">ア：200Pa</button>
+    <button class="choice-btn" onclick="pick4('mt2',2,1,2,'mt2_q2')">イ：20000Pa</button>
+    <button class="choice-btn" onclick="pick4('mt2',2,2,2,'mt2_q2')">ウ：2000Pa</button>
+    <button class="choice-btn" onclick="pick4('mt2',2,3,2,'mt2_q2')">エ：20Pa</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt2_q2"></div>
+  <div class="msample" id="samp_mt2_q2">正解: ウ：2000Pa　力2N、面積10/10000 m²。2÷(10/10000)＝2000Pa</div>
+</div><div class="q-block" id="qblock_mt2_q3">
+  <h4>Q3. 1kgの立方体(一辺10cm)を置きました。圧力は？</h4>
+  
+  <div class="choice-list" id="choices_mt2_q3">
+    <button class="choice-btn" onclick="pick4('mt2',3,0,3,'mt2_q3')">ア：10Pa</button>
+    <button class="choice-btn" onclick="pick4('mt2',3,1,3,'mt2_q3')">イ：100Pa</button>
+    <button class="choice-btn" onclick="pick4('mt2',3,2,3,'mt2_q3')">ウ：10000Pa</button>
+    <button class="choice-btn" onclick="pick4('mt2',3,3,3,'mt2_q3')">エ：1000Pa</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt2_q3"></div>
+  <div class="msample" id="samp_mt2_q3">正解: エ：1000Pa　1kg＝1000g＝10N。面積100cm²＝0.01m²。10÷0.01＝1000Pa</div>
+</div><div class="q-block" id="qblock_mt2_q4">
+  <h4>Q4. 1cm²は何m²ですか。</h4>
+  
+  <div class="choice-list" id="choices_mt2_q4">
+    <button class="choice-btn" onclick="pick4('mt2',4,0,1,'mt2_q4')">ア：1/100 m²</button>
+    <button class="choice-btn" onclick="pick4('mt2',4,1,1,'mt2_q4')">イ：1/10000 m²</button>
+    <button class="choice-btn" onclick="pick4('mt2',4,2,1,'mt2_q4')">ウ：1/1000 m²</button>
+    <button class="choice-btn" onclick="pick4('mt2',4,3,1,'mt2_q4')">エ：1/100000 m²</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt2_q4"></div>
+  <div class="msample" id="samp_mt2_q4">正解: イ：1/10000 m²　1m＝100cmなので1m²＝10000cm²です。</div>
+</div><div class="q-block" id="qblock_mt2_q5">
+  <h4>Q5. 直方体を置くとき、圧力が一番大きくなるのは面積が①面を②にしたときです。</h4>
+  
+  <p class="q-note">面積が①面を②にしたとき、圧力が一番大きくなります。</p>
+  <div class="mchips" id="chips_mt2_q5"></div>
+  <div class="mdz-row"><span class="mdz-label">①</span><span class="mdz" id="mdz_mt2_q5_0" onclick="returnChip('mt2',5,0)">&nbsp;</span><span class="mdz-label">②</span><span class="mdz" id="mdz_mt2_q5_1" onclick="returnChip('mt2',5,1)">&nbsp;</span></div>
+  <div class="btn-row">
+    <button class="check-btn" onclick="checkMiniBank('mt2',5)">✔ 答え合わせ</button>
+    <button class="sample-btn" onclick="showSample('mt2',5)">💡 答えを見る</button>
+  </div>
+  <div class="fb-msg" id="fb_mt2_q5"></div>
+  <div class="msample" id="samp_mt2_q5">答え: ①=一番小さい / ②=下</div>
+</div>
+      <div class="pass-banner" id="pass_mt2">🎉 この単元クリア！すばらしい！ 🎉</div>
+    </div>
+  </div>
+</div>
+<div class="unit-card" id="card_mt3">
+  <div class="unit-header">
+    <div class="unit-num">3</div>
+    <h2>大気と大気圧</h2>
+  </div>
+  <div class="unit-body">
+    <div class="exp-text"><p>わたしたちの身のまわりには、空気（大気）があります。空気にも重さがあります。</p><p>地上から上空へ空気が積み重なっていて、その重さで<b>あらゆる向きから</b>おされています。この圧力を<b>大気圧（気圧）</b>といいます。</p></div><div class="exp-img"><img src="img/zu07.png" alt="対流圏の図"></div><div class="exp-img"><img src="img/zu08.png" alt="A君とB君の図"></div><div class="exp-img"><img src="img/zu09.png" alt="山とペットボトルの図"></div><div class="pt-box"><b>【重要】</b><br>大気圧は、あらゆる向きからはたらきます。<br><b>高いところほど、上にある空気が少ないので、大気圧は小さく</b>なります。<br>山の上でお菓子のふくろがふくらむのは、まわりの気圧が小さくなるからです。</div><div class="exp-text"><p>天気が変わるのは、地上から約10kmまでの空気の層（<b>対流圏</b>）です。</p></div><div class="amber-box">【先生へ】テキストp3の「大気は地上から約10kmまで」は、「天気が変わる対流圏が約10km」の意味に直しています。また図2はB君が山の上なので、気圧が小さいのは<b>B君</b>です（テキストの記述はA・Bが逆）。</div>
+    <button class="mini-btn" onclick="toggleMini('mt3')">
+      🧪 ミニテストに挑戦！
+      <span id="mini-badge-mt3" style="background:#fff;color:var(--acc-d);border-radius:12px;padding:2px 10px;font-size:.82rem;margin-left:8px;">0 / 5</span>
+    </button>
+    <div class="mini-section" id="mini_mt3">
+      <div class="mini-score-row"><div class="mini-score-pip" id="pip_mt3_1"></div><div class="mini-score-pip" id="pip_mt3_2"></div><div class="mini-score-pip" id="pip_mt3_3"></div><div class="mini-score-pip" id="pip_mt3_4"></div><div class="mini-score-pip" id="pip_mt3_5"></div></div>
+      <div class="q-block" id="qblock_mt3_q1">
+  <h4>Q1. □に入る言葉を選びましょう。</h4>
+  
+  <p class="q-note">空気にも①があります。その重さによる圧力を②といいます。</p>
+  <div class="mchips" id="chips_mt3_q1"></div>
+  <div class="mdz-row"><span class="mdz-label">①</span><span class="mdz" id="mdz_mt3_q1_0" onclick="returnChip('mt3',1,0)">&nbsp;</span><span class="mdz-label">②</span><span class="mdz" id="mdz_mt3_q1_1" onclick="returnChip('mt3',1,1)">&nbsp;</span></div>
+  <div class="btn-row">
+    <button class="check-btn" onclick="checkMiniBank('mt3',1)">✔ 答え合わせ</button>
+    <button class="sample-btn" onclick="showSample('mt3',1)">💡 答えを見る</button>
+  </div>
+  <div class="fb-msg" id="fb_mt3_q1"></div>
+  <div class="msample" id="samp_mt3_q1">答え: ①=重さ / ②=大気圧</div>
+</div><div class="q-block" id="qblock_mt3_q2">
+  <h4>Q2. 大気圧がはたらく向きは？</h4>
+  
+  <div class="choice-list" id="choices_mt3_q2">
+    <button class="choice-btn" onclick="pick4('mt3',2,0,3,'mt3_q2')">ア：下向きだけ</button>
+    <button class="choice-btn" onclick="pick4('mt3',2,1,3,'mt3_q2')">イ：横向きだけ</button>
+    <button class="choice-btn" onclick="pick4('mt3',2,2,3,'mt3_q2')">ウ：上向きだけ</button>
+    <button class="choice-btn" onclick="pick4('mt3',2,3,3,'mt3_q2')">エ：あらゆる向き</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt3_q2"></div>
+  <div class="msample" id="samp_mt3_q2">正解: エ：あらゆる向き　空気のつぶがあらゆる向きからおしています。</div>
+</div><div class="q-block" id="qblock_mt3_q3">
+  <h4>Q3. 山の上と山のふもとでは、大気圧はどちらが小さい？</h4>
+  
+  <div class="choice-list" id="choices_mt3_q3">
+    <button class="choice-btn" onclick="pick4('mt3',3,0,3,'mt3_q3')">ア：山のふもと</button>
+    <button class="choice-btn" onclick="pick4('mt3',3,1,3,'mt3_q3')">イ：同じ</button>
+    <button class="choice-btn" onclick="pick4('mt3',3,2,3,'mt3_q3')">ウ：時間によって逆になる</button>
+    <button class="choice-btn" onclick="pick4('mt3',3,3,3,'mt3_q3')">エ：山の上</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt3_q3"></div>
+  <div class="msample" id="samp_mt3_q3">正解: エ：山の上　高いところほど上にある空気が少ないので小さくなります。</div>
+</div><div class="q-block" id="qblock_mt3_q4">
+  <h4>Q4. ふもとで閉じたペットボトルを山の上に持っていくと？</h4>
+  
+  <div class="choice-list" id="choices_mt3_q4">
+    <button class="choice-btn" onclick="pick4('mt3',4,0,1,'mt3_q4')">ア：破れて水が出る</button>
+    <button class="choice-btn" onclick="pick4('mt3',4,1,1,'mt3_q4')">イ：ふくらむ</button>
+    <button class="choice-btn" onclick="pick4('mt3',4,2,1,'mt3_q4')">ウ：変わらない</button>
+    <button class="choice-btn" onclick="pick4('mt3',4,3,1,'mt3_q4')">エ：へこむ</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt3_q4"></div>
+  <div class="msample" id="samp_mt3_q4">正解: イ：ふくらむ　まわりの気圧が小さくなって、中の空気がおし広げるからです。</div>
+</div><div class="q-block" id="qblock_mt3_q5">
+  <h4>Q5. 天気が変わるのは地上から約①kmまでの層で、この層を②といいます。</h4>
+  
+  <p class="q-note">地上から約①kmまでの層を②といいます。</p>
+  <div class="mchips" id="chips_mt3_q5"></div>
+  <div class="mdz-row"><span class="mdz-label">①</span><span class="mdz" id="mdz_mt3_q5_0" onclick="returnChip('mt3',5,0)">&nbsp;</span><span class="mdz-label">②</span><span class="mdz" id="mdz_mt3_q5_1" onclick="returnChip('mt3',5,1)">&nbsp;</span></div>
+  <div class="btn-row">
+    <button class="check-btn" onclick="checkMiniBank('mt3',5)">✔ 答え合わせ</button>
+    <button class="sample-btn" onclick="showSample('mt3',5)">💡 答えを見る</button>
+  </div>
+  <div class="fb-msg" id="fb_mt3_q5"></div>
+  <div class="msample" id="samp_mt3_q5">答え: ①=10 / ②=対流圏</div>
+</div>
+      <div class="pass-banner" id="pass_mt3">🎉 この単元クリア！すばらしい！ 🎉</div>
+    </div>
+  </div>
+</div>
+<div class="unit-card" id="card_mt4">
+  <div class="unit-header">
+    <div class="unit-num">4</div>
+    <h2>大気圧の実験（空き缶）</h2>
+  </div>
+  <div class="unit-body">
+    <div class="exp-text"><p>空き缶に少しの水を入れて加熱し、水を沸騰させると、中は水蒸気でいっぱいになります。</p><p>火を止めてすぐにふたをして冷やすと、水蒸気が水にもどって体積が小さくなり、中の気圧が<b>小さく</b>なります。まわりの大気圧のほうが大きいので、缶は<b>つぶれます</b>。</p></div><div class="exp-img"><img src="img/zu10.png" alt="空き缶を加熱する図"></div><div class="exp-img"><img src="img/zu11.png" alt="つぶれた空き缶"></div><div class="pt-box"><b>【重要】</b><br>缶がつぶれるのは、<b>外の大気圧 ＞ 中の気圧</b> になるからです。<br>水蒸気が冷えると水にもどり、体積が小さくなります。</div>
+    <button class="mini-btn" onclick="toggleMini('mt4')">
+      🧪 ミニテストに挑戦！
+      <span id="mini-badge-mt4" style="background:#fff;color:var(--acc-d);border-radius:12px;padding:2px 10px;font-size:.82rem;margin-left:8px;">0 / 5</span>
+    </button>
+    <div class="mini-section" id="mini_mt4">
+      <div class="mini-score-row"><div class="mini-score-pip" id="pip_mt4_1"></div><div class="mini-score-pip" id="pip_mt4_2"></div><div class="mini-score-pip" id="pip_mt4_3"></div><div class="mini-score-pip" id="pip_mt4_4"></div><div class="mini-score-pip" id="pip_mt4_5"></div></div>
+      <div class="q-block" id="qblock_mt4_q1">
+  <h4>Q1. □に入る言葉を選びましょう。</h4>
+  
+  <p class="q-note">空き缶の水を①させてから冷やすと、中の水蒸気が②にもどります。</p>
+  <div class="mchips" id="chips_mt4_q1"></div>
+  <div class="mdz-row"><span class="mdz-label">①</span><span class="mdz" id="mdz_mt4_q1_0" onclick="returnChip('mt4',1,0)">&nbsp;</span><span class="mdz-label">②</span><span class="mdz" id="mdz_mt4_q1_1" onclick="returnChip('mt4',1,1)">&nbsp;</span></div>
+  <div class="btn-row">
+    <button class="check-btn" onclick="checkMiniBank('mt4',1)">✔ 答え合わせ</button>
+    <button class="sample-btn" onclick="showSample('mt4',1)">💡 答えを見る</button>
+  </div>
+  <div class="fb-msg" id="fb_mt4_q1"></div>
+  <div class="msample" id="samp_mt4_q1">答え: ①=沸騰 / ②=水</div>
+</div><div class="q-block" id="qblock_mt4_q2">
+  <h4>Q2. 缶がつぶれる理由として正しいものは？</h4>
+  
+  <div class="choice-list" id="choices_mt4_q2">
+    <button class="choice-btn" onclick="pick4('mt4',2,0,0,'mt4_q2')">ア：外の気圧のほうが大きくなるから</button>
+    <button class="choice-btn" onclick="pick4('mt4',2,1,0,'mt4_q2')">イ：缶が熱でとけるから</button>
+    <button class="choice-btn" onclick="pick4('mt4',2,2,0,'mt4_q2')">ウ：中の気圧のほうが大きくなるから</button>
+    <button class="choice-btn" onclick="pick4('mt4',2,3,0,'mt4_q2')">エ：重力が強くなるから</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt4_q2"></div>
+  <div class="msample" id="samp_mt4_q2">正解: ア：外の気圧のほうが大きくなるから　中の気圧が小さくなり、外の大気圧におされます。</div>
+</div><div class="q-block" id="qblock_mt4_q3">
+  <h4>Q3. 冷やしたとき、中の水蒸気はどうなる？</h4>
+  
+  <div class="choice-list" id="choices_mt4_q3">
+    <button class="choice-btn" onclick="pick4('mt4',3,0,1,'mt4_q3')">ア：変わらない</button>
+    <button class="choice-btn" onclick="pick4('mt4',3,1,1,'mt4_q3')">イ：水にもどる</button>
+    <button class="choice-btn" onclick="pick4('mt4',3,2,1,'mt4_q3')">ウ：氷になる</button>
+    <button class="choice-btn" onclick="pick4('mt4',3,3,1,'mt4_q3')">エ：空気になる</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt4_q3"></div>
+  <div class="msample" id="samp_mt4_q3">正解: イ：水にもどる　水蒸気は冷やされて水になります。</div>
+</div><div class="q-block" id="qblock_mt4_q4">
+  <h4>Q4. ふたをするタイミングは？</h4>
+  
+  <div class="choice-list" id="choices_mt4_q4">
+    <button class="choice-btn" onclick="pick4('mt4',4,0,1,'mt4_q4')">ア：冷やしてから</button>
+    <button class="choice-btn" onclick="pick4('mt4',4,1,1,'mt4_q4')">イ：加熱して水蒸気でいっぱいになってから</button>
+    <button class="choice-btn" onclick="pick4('mt4',4,2,1,'mt4_q4')">ウ：加熱する前</button>
+    <button class="choice-btn" onclick="pick4('mt4',4,3,1,'mt4_q4')">エ：水を入れる前</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt4_q4"></div>
+  <div class="msample" id="samp_mt4_q4">正解: イ：加熱して水蒸気でいっぱいになってから　中の空気を水蒸気でおい出してからふたをします。</div>
+</div><div class="q-block" id="qblock_mt4_q5">
+  <h4>Q5. 缶の中の気圧が①くなると、外の大気圧のほうが②いのでつぶれます。</h4>
+  
+  <p class="q-note">中の気圧が①くなると、外の大気圧が②い。</p>
+  <div class="mchips" id="chips_mt4_q5"></div>
+  <div class="mdz-row"><span class="mdz-label">①</span><span class="mdz" id="mdz_mt4_q5_0" onclick="returnChip('mt4',5,0)">&nbsp;</span><span class="mdz-label">②</span><span class="mdz" id="mdz_mt4_q5_1" onclick="returnChip('mt4',5,1)">&nbsp;</span></div>
+  <div class="btn-row">
+    <button class="check-btn" onclick="checkMiniBank('mt4',5)">✔ 答え合わせ</button>
+    <button class="sample-btn" onclick="showSample('mt4',5)">💡 答えを見る</button>
+  </div>
+  <div class="fb-msg" id="fb_mt4_q5"></div>
+  <div class="msample" id="samp_mt4_q5">答え: ①=小さ / ②=大き</div>
+</div>
+      <div class="pass-banner" id="pass_mt4">🎉 この単元クリア！すばらしい！ 🎉</div>
+    </div>
+  </div>
+</div>
+<div class="unit-card" id="card_mt5">
+  <div class="unit-header">
+    <div class="unit-num">5</div>
+    <h2>気圧の単位 hPa</h2>
+  </div>
+  <div class="unit-body">
+    <div class="exp-text"><p>天気予報では、気圧を <b>hPa（ヘクトパスカル）</b>で表します。</p></div><div class="pt-box"><b>【重要】</b><br><b>1hPa ＝ 100Pa（＝100N/m²）</b><br><b>1気圧 ＝ 1013hPa</b>（海面付近の平均的な大気圧）<br>1013hPa ＝ 101300Pa</div><div class="exp-text"><p>気圧が高いところを<b>高気圧</b>、まわりより低いところを<b>低気圧</b>といいます。</p></div>
+    <button class="mini-btn" onclick="toggleMini('mt5')">
+      🧪 ミニテストに挑戦！
+      <span id="mini-badge-mt5" style="background:#fff;color:var(--acc-d);border-radius:12px;padding:2px 10px;font-size:.82rem;margin-left:8px;">0 / 5</span>
+    </button>
+    <div class="mini-section" id="mini_mt5">
+      <div class="mini-score-row"><div class="mini-score-pip" id="pip_mt5_1"></div><div class="mini-score-pip" id="pip_mt5_2"></div><div class="mini-score-pip" id="pip_mt5_3"></div><div class="mini-score-pip" id="pip_mt5_4"></div><div class="mini-score-pip" id="pip_mt5_5"></div></div>
+      <div class="q-block" id="qblock_mt5_q1">
+  <h4>Q1. 1hPaは何Paですか。</h4>
+  
+  <div class="choice-list" id="choices_mt5_q1">
+    <button class="choice-btn" onclick="pick4('mt5',1,0,3,'mt5_q1')">ア：1Pa</button>
+    <button class="choice-btn" onclick="pick4('mt5',1,1,3,'mt5_q1')">イ：1000Pa</button>
+    <button class="choice-btn" onclick="pick4('mt5',1,2,3,'mt5_q1')">ウ：10Pa</button>
+    <button class="choice-btn" onclick="pick4('mt5',1,3,3,'mt5_q1')">エ：100Pa</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt5_q1"></div>
+  <div class="msample" id="samp_mt5_q1">正解: エ：100Pa　ヘクトは100倍の意味です。</div>
+</div><div class="q-block" id="qblock_mt5_q2">
+  <h4>Q2. 1気圧はおよそ何hPa？</h4>
+  
+  <div class="choice-list" id="choices_mt5_q2">
+    <button class="choice-btn" onclick="pick4('mt5',2,0,1,'mt5_q2')">ア：101hPa</button>
+    <button class="choice-btn" onclick="pick4('mt5',2,1,1,'mt5_q2')">イ：1013hPa</button>
+    <button class="choice-btn" onclick="pick4('mt5',2,2,1,'mt5_q2')">ウ：10130hPa</button>
+    <button class="choice-btn" onclick="pick4('mt5',2,3,1,'mt5_q2')">エ：913hPa</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt5_q2"></div>
+  <div class="msample" id="samp_mt5_q2">正解: イ：1013hPa　海面付近の平均的な気圧です。</div>
+</div><div class="q-block" id="qblock_mt5_q3">
+  <h4>Q3. 1013hPaは何Paですか。</h4>
+  
+  <div class="choice-list" id="choices_mt5_q3">
+    <button class="choice-btn" onclick="pick4('mt5',3,0,1,'mt5_q3')">ア：1013Pa</button>
+    <button class="choice-btn" onclick="pick4('mt5',3,1,1,'mt5_q3')">イ：101300Pa</button>
+    <button class="choice-btn" onclick="pick4('mt5',3,2,1,'mt5_q3')">ウ：10130Pa</button>
+    <button class="choice-btn" onclick="pick4('mt5',3,3,1,'mt5_q3')">エ：1013000Pa</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt5_q3"></div>
+  <div class="msample" id="samp_mt5_q3">正解: イ：101300Pa　1013×100＝101300Pa</div>
+</div><div class="q-block" id="qblock_mt5_q4">
+  <h4>Q4. 2000hPaは何Paですか。</h4>
+  
+  <div class="choice-list" id="choices_mt5_q4">
+    <button class="choice-btn" onclick="pick4('mt5',4,0,2,'mt5_q4')">ア：20000Pa</button>
+    <button class="choice-btn" onclick="pick4('mt5',4,1,2,'mt5_q4')">イ：2000Pa</button>
+    <button class="choice-btn" onclick="pick4('mt5',4,2,2,'mt5_q4')">ウ：200000Pa</button>
+    <button class="choice-btn" onclick="pick4('mt5',4,3,2,'mt5_q4')">エ：2000000Pa</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt5_q4"></div>
+  <div class="msample" id="samp_mt5_q4">正解: ウ：200000Pa　2000×100＝200000Pa</div>
+</div><div class="q-block" id="qblock_mt5_q5">
+  <h4>Q5. □に入る言葉を選びましょう。</h4>
+  
+  <p class="q-note">1hPaは①Paです。1気圧は②hPaです。</p>
+  <div class="mchips" id="chips_mt5_q5"></div>
+  <div class="mdz-row"><span class="mdz-label">①</span><span class="mdz" id="mdz_mt5_q5_0" onclick="returnChip('mt5',5,0)">&nbsp;</span><span class="mdz-label">②</span><span class="mdz" id="mdz_mt5_q5_1" onclick="returnChip('mt5',5,1)">&nbsp;</span></div>
+  <div class="btn-row">
+    <button class="check-btn" onclick="checkMiniBank('mt5',5)">✔ 答え合わせ</button>
+    <button class="sample-btn" onclick="showSample('mt5',5)">💡 答えを見る</button>
+  </div>
+  <div class="fb-msg" id="fb_mt5_q5"></div>
+  <div class="msample" id="samp_mt5_q5">答え: ①=100 / ②=1013</div>
+</div>
+      <div class="pass-banner" id="pass_mt5">🎉 この単元クリア！すばらしい！ 🎉</div>
+    </div>
+  </div>
+</div>
+</div>
+<div class="chap-nav"><a href="index.html">目次</a><a href="tenki_ch01.html" class="now">第1章 圧力と大気圧</a><a href="tenki_ch02.html">第2章 天気の観測</a><a href="tenki_ch03.html">第3章 水蒸気と湿度</a></div>
+<script>
+
+const miniState = {};
+const miniScore = {};
+const miniTotal = {};
+const miniDone = {};
+
+function toggleMini(secId) {
+  document.getElementById('mini_' + secId).classList.toggle('open');
+}
+
+function initMiniBank(secId, qNum, words, answers, freeGroups) {
+  const key = secId + '_q' + qNum;
+  miniState[key] = {
+    words: [...words], answers: [...answers],
+    filled: new Array(answers.length).fill(null),
+    chipUsed: new Array(words.length).fill(false),
+    freeGroups: freeGroups || []
+  };
+  const container = document.getElementById('chips_' + key);
+  if (!container) return;
+  container.innerHTML = '';
+  const order = [...Array(words.length).keys()];
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  order.forEach(i => {
+    const btn = document.createElement('button');
+    btn.className = 'mchip';
+    btn.id = 'chip_' + key + '_' + i;
+    btn.textContent = words[i];
+    btn.onclick = () => fillMDZ(secId, qNum, i);
+    container.appendChild(btn);
+  });
+}
+
+function fillMDZ(secId, qNum, chipIdx) {
+  const key = secId + '_q' + qNum;
+  const st = miniState[key];
+  if (!st || st.chipUsed[chipIdx]) return;
+  const emptyIdx = st.filled.findIndex(v => v === null);
+  if (emptyIdx < 0) return;
+  st.filled[emptyIdx] = chipIdx;
+  st.chipUsed[chipIdx] = true;
+  document.getElementById('chip_' + key + '_' + chipIdx).classList.add('used');
+  const mdz = document.getElementById('mdz_' + key + '_' + emptyIdx);
+  if (mdz) { mdz.textContent = st.words[chipIdx]; mdz.classList.add('filled'); }
+}
+
+function returnChip(secId, qNum, blankIdx) {
+  const key = secId + '_q' + qNum;
+  const st = miniState[key];
+  if (!st || st.filled[blankIdx] === null) return;
+  const chipIdx = st.filled[blankIdx];
+  st.filled[blankIdx] = null;
+  st.chipUsed[chipIdx] = false;
+  document.getElementById('chip_' + key + '_' + chipIdx).classList.remove('used');
+  const mdz = document.getElementById('mdz_' + key + '_' + blankIdx);
+  if (mdz) { mdz.textContent = ' '; mdz.className = 'mdz'; }
+}
+
+function checkMiniBank(secId, qNum) {
+  const key = secId + '_q' + qNum;
+  const st = miniState[key];
+  if (!st) return;
+  let allCorrect = true;
+  st.filled.forEach((chipIdx, bi) => {
+    const mdz = document.getElementById('mdz_' + key + '_' + bi);
+    if (!mdz) return;
+    if (chipIdx === null) { allCorrect = false; return; }
+    const isCorrect = (st.words[chipIdx] === st.answers[bi]);
+    if (isCorrect) { mdz.classList.remove('wrong'); mdz.classList.add('correct'); }
+    else { mdz.classList.remove('correct'); mdz.classList.add('wrong'); allCorrect = false; }
+  });
+  const fb = document.getElementById('fb_' + key);
+  if (allCorrect) {
+    if (fb) fb.textContent = '✅ 正解！すばらしい！';
+    markPass(secId, qNum - 1);
+    flowerPetals();
+  } else {
+    if (fb) fb.textContent = '❌ もう一度確認しよう！（まちがった空欄は、タップすると語句をもどせます）';
+  }
+}
+
+function showSample(secId, qNum) {
+  const el = document.getElementById('samp_' + secId + '_q' + qNum);
+  if (el) el.classList.toggle('show');
+}
+
+function pick4(secId, qNum, chosen, correct, qid) {
+  const btns = document.querySelectorAll('#choices_' + qid + ' .choice-btn');
+  btns.forEach(b => b.disabled = true);
+  const fb = document.getElementById('fb_' + qid);
+  if (chosen === correct) {
+    btns[chosen].classList.add('correct');
+    if (fb) fb.textContent = '✅ 正解！';
+    markPass(secId, qNum - 1);
+    flowerPetals();
+  } else {
+    btns[chosen].classList.add('wrong');
+    btns[correct].classList.add('correct');
+    if (fb) fb.textContent = '❌ 残念！正解は緑のボタンです。';
+  }
+  document.getElementById('samp_' + qid).classList.add('show');
+}
+
+function markPass(secId, qIdx) {
+  if (miniDone[secId][qIdx]) return;
+  miniDone[secId][qIdx] = true;
+  miniScore[secId]++;
+  const pip = document.getElementById('pip_' + secId + '_' + (qIdx + 1));
+  if (pip) pip.classList.add('pass');
+  const badge = document.getElementById('mini-badge-' + secId);
+  if (badge) badge.textContent = miniScore[secId] + ' / ' + miniTotal[secId];
+  if (miniScore[secId] >= miniTotal[secId]) {
+    const banner = document.getElementById('pass_' + secId);
+    if (banner) banner.classList.add('show');
+    fireConfetti();
+  }
+}
+
+function flowerPetals() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  const petals = [];
+  const colors = ['#38bdf8','#fb7185','#fbbf24','#34d399','#60a5fa','#a78bfa'];
+  for (let i = 0; i < 60; i++) {
+    petals.push({
+      x: Math.random() * canvas.width, y: -20 - Math.random() * 200,
+      r: 4 + Math.random() * 6, color: colors[Math.floor(Math.random() * colors.length)],
+      vx: (Math.random() - 0.5) * 3, vy: 2 + Math.random() * 3,
+      rot: Math.random() * Math.PI * 2, rotV: (Math.random() - 0.5) * 0.15
+    });
+  }
+  let frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    petals.forEach(p => {
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+      ctx.fillStyle = p.color; ctx.beginPath();
+      ctx.ellipse(0, 0, p.r, p.r * 0.55, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+      p.x += p.vx; p.y += p.vy; p.rot += p.rotV;
+    });
+    frame++;
+    if (frame < 80) requestAnimationFrame(draw);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  draw();
+}
+
+function fireConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  const pieces = [];
+  const colors = ['#38bdf8','#fbbf24','#34d399','#60a5fa','#a78bfa','#fb7185','#fff'];
+  for (let i = 0; i < 150; i++) {
+    pieces.push({
+      x: Math.random() * canvas.width, y: -20 - Math.random() * 300,
+      w: 8 + Math.random() * 10, h: 4 + Math.random() * 6,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      vx: (Math.random() - 0.5) * 5, vy: 3 + Math.random() * 4,
+      rot: Math.random() * Math.PI * 2, rotV: (Math.random() - 0.5) * 0.2
+    });
+  }
+  let frame2 = 0;
+  function draw2() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+      ctx.fillStyle = p.color; ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h); ctx.restore();
+      p.x += p.vx; p.y += p.vy; p.rot += p.rotV;
+    });
+    frame2++;
+    if (frame2 < 140) requestAnimationFrame(draw2);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  draw2();
+}
+
+miniScore['mt1'] = 0; miniTotal['mt1'] = 5; miniDone['mt1'] = [false, false, false, false, false];
+miniScore['mt2'] = 0; miniTotal['mt2'] = 5; miniDone['mt2'] = [false, false, false, false, false];
+miniScore['mt3'] = 0; miniTotal['mt3'] = 5; miniDone['mt3'] = [false, false, false, false, false];
+miniScore['mt4'] = 0; miniTotal['mt4'] = 5; miniDone['mt4'] = [false, false, false, false, false];
+miniScore['mt5'] = 0; miniTotal['mt5'] = 5; miniDone['mt5'] = [false, false, false, false, false];
+initMiniBank('mt1',1,["力", "大きく"],["力", "大きく"],[]);
+initMiniBank('mt1',5,["N", "Pa"],["N", "Pa"],[]);
+initMiniBank('mt2',5,["一番小さい", "下"],["一番小さい", "下"],[]);
+initMiniBank('mt3',1,["重さ", "大気圧"],["重さ", "大気圧"],[]);
+initMiniBank('mt3',5,["10", "対流圏"],["10", "対流圏"],[]);
+initMiniBank('mt4',1,["沸騰", "水"],["沸騰", "水"],[]);
+initMiniBank('mt4',5,["小さ", "大き"],["小さ", "大き"],[]);
+initMiniBank('mt5',5,["100", "1013"],["100", "1013"],[]);
+</script>
+</body></html>

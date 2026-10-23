@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🌤️ 第2章 天気の観測</title>
+<style>
+:root{
+  --pri:#0284c7;--pri-d:#075985;--pri-l:#e0f2fe;
+  --acc:#0e7490;--acc-d:#155e75;--acc-bg:#ecfeff;
+  --gray:#6b7280;--card:#fff;
+  --radius:14px;--shadow:0 4px 18px rgba(0,0,0,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#f0f9ff;font-family:'BIZ UDGothic','Helvetica Neue',Arial,'Hiragino Sans','Yu Gothic',sans-serif;color:#1e293b;}
+header{background:linear-gradient(135deg,var(--pri-d),var(--pri));color:#fff;text-align:center;padding:28px 20px 22px;}
+header h1{font-size:clamp(1.3rem,4vw,2rem);font-weight:900;letter-spacing:.04em;}
+header p{margin-top:6px;font-size:.93rem;opacity:.88;}
+.units{max-width:860px;margin:30px auto;padding:0 16px;}
+.unit-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:32px;overflow:hidden;}
+.unit-header{background:linear-gradient(90deg,var(--pri-d),var(--pri));color:#fff;padding:14px 22px;display:flex;align-items:center;gap:12px;}
+.unit-num{background:#fff;color:var(--pri-d);font-weight:900;font-size:1.1rem;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.unit-header h2{font-size:1.1rem;font-weight:800;}
+.unit-body{padding:22px;}
+.exp-img{margin:14px 0;text-align:center;}
+.exp-img img{max-width:min(100%,520px);border-radius:10px;margin:6px auto;display:block;}
+.exp-img svg{max-width:100%;height:auto;}
+.exp-img .cap{font-size:.82rem;color:var(--gray);margin-top:2px;}
+.exp-text{line-height:1.95;font-size:.97rem;margin:10px 0;}
+.exp-text p{margin-bottom:.85em;}
+.exp-text h3{font-size:.97rem;color:var(--pri-d);margin:1em 0 .5em;border-left:3px solid var(--pri);padding-left:8px;font-weight:800;}
+.pt-box{background:#dcfce7;border-left:4px solid #16a34a;border-radius:0 8px 8px 0;padding:11px 15px;margin:10px 0;font-size:.91rem;line-height:1.8;}
+.warn-box{background:#fee2e2;border-left:4px solid #dc2626;border-radius:0 8px 8px 0;padding:11px 15px;margin:10px 0;font-size:.91rem;line-height:1.8;}
+.amber-box{background:#fef3c7;border-left:4px solid #b45309;border-radius:0 8px 8px 0;padding:11px 15px;margin:10px 0;font-size:.91rem;line-height:1.8;}
+.info-box{background:#f0fdff;border-left:4px solid #0e7490;border-radius:0 8px 8px 0;padding:11px 15px;margin:10px 0;font-size:.91rem;line-height:1.8;}
+.eq-box{background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:14px;margin:10px 0;text-align:center;}
+.eq-box .eq{font-size:1rem;font-weight:800;color:var(--pri-d);letter-spacing:.03em;line-height:1.9;}
+.exp-tbl{width:100%;border-collapse:collapse;font-size:.85rem;margin:10px 0;}
+.exp-tbl th{background:var(--pri);color:#fff;padding:8px 10px;text-align:center;}
+.exp-tbl td{padding:8px 10px;border-bottom:1px solid #e5e7eb;vertical-align:top;line-height:1.65;text-align:center;}
+.exp-tbl tr:nth-child(even) td{background:#f9fafb;}
+.exp-tbl .nc{font-weight:700;white-space:nowrap;background:#f0f9ff;}
+.exp-tbl.small{font-size:.8rem;}
+.exp-tbl.small td,.exp-tbl.small th{padding:5px 6px;}
+.tbl-wrap{overflow-x:auto;}
+.kw-list{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 16px;}
+.kw{background:var(--pri-l);color:var(--pri-d);border-radius:20px;padding:4px 14px;font-size:.88rem;font-weight:700;}
+.mini-btn{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;background:var(--acc-bg);border:2.5px solid var(--acc);color:var(--acc-d);font-size:.97rem;font-weight:800;padding:10px 22px;border-radius:40px;margin:14px 0 0;transition:.2s;}
+.mini-btn:hover{background:var(--acc);color:#fff;}
+.mini-section{display:none;margin-top:16px;background:#f0fdfa;border:2px solid #99f6e4;border-radius:12px;padding:18px;}
+.mini-section.open{display:block;}
+.q-block{margin-bottom:26px;}
+.q-block h4{font-size:.98rem;font-weight:800;color:var(--pri-d);margin-bottom:10px;line-height:1.7;}
+.mchips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0;}
+.mchip{background:#fff;border:2.5px solid var(--acc);color:var(--acc-d);border-radius:20px;padding:5px 16px;font-size:.93rem;font-weight:700;cursor:pointer;transition:.18s;font-family:inherit;}
+.mchip:hover{background:var(--acc);color:#fff;}
+.mchip.used{opacity:.35;pointer-events:none;}
+.mdz-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:8px 0;}
+.mdz{display:inline-flex;align-items:center;justify-content:center;min-width:80px;height:36px;border:2.5px dashed var(--acc);border-radius:8px;padding:0 10px;font-size:.93rem;font-weight:700;cursor:pointer;color:var(--acc-d);transition:.18s;background:#fff;}
+.mdz.filled{border-style:solid;background:#cffafe;}
+.mdz.correct{border-color:#16a34a;background:#dcfce7;color:#166534;}
+.mdz.wrong{border-color:#dc2626;background:#fee2e2;color:#991b1b;}
+.mdz-label{font-size:.9rem;color:#374151;}
+.choice-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0;}
+@media(max-width:480px){.choice-list{grid-template-columns:1fr;}}
+.choice-btn{padding:10px 14px;border:2.5px solid #d1d5db;border-radius:10px;background:#fff;font-size:.93rem;cursor:pointer;text-align:left;transition:.18s;font-family:inherit;color:#1e293b;line-height:1.6;}
+.choice-btn svg{vertical-align:middle;margin-right:6px;}
+.choice-btn:hover{border-color:var(--pri);background:var(--pri-l);}
+.choice-btn.correct{border-color:#16a34a;background:#dcfce7;color:#166534;font-weight:700;}
+.choice-btn.wrong{border-color:#dc2626;background:#fee2e2;color:#991b1b;}
+.choice-btn:disabled{cursor:default;}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.check-btn{background:var(--pri);color:#fff;border:none;border-radius:22px;padding:8px 22px;font-size:.93rem;font-weight:700;cursor:pointer;transition:.18s;font-family:inherit;}
+.check-btn:hover{background:var(--pri-d);}
+.sample-btn{background:#fff;color:var(--gray);border:2px solid #d1d5db;border-radius:22px;padding:8px 22px;font-size:.93rem;font-weight:700;cursor:pointer;transition:.18s;font-family:inherit;}
+.sample-btn:hover{background:#f3f4f6;}
+.msample{display:none;background:#fef9c3;border:1.5px solid #fbbf24;border-radius:8px;padding:8px 14px;font-size:.9rem;margin-top:8px;line-height:1.8;}
+.msample.show{display:block;}
+.fb-msg{font-size:.9rem;margin-top:6px;font-weight:600;}
+.mini-score-row{display:flex;gap:6px;align-items:center;margin-bottom:10px;}
+.mini-score-pip{width:14px;height:14px;border-radius:50%;background:#e5e7eb;border:2px solid #d1d5db;transition:.3s;}
+.mini-score-pip.pass{background:#16a34a;border-color:#166534;}
+.pass-banner{display:none;background:linear-gradient(90deg,#166534,#16a34a);color:#fff;text-align:center;padding:16px;border-radius:10px;margin-top:16px;font-size:1.1rem;font-weight:900;}
+.pass-banner.show{display:block;}
+canvas#confetti-canvas{position:fixed;top:0;left:0;pointer-events:none;width:100%;height:100%;z-index:9999;}
+.q-img{max-width:100%;border-radius:10px;margin:6px auto 10px;display:block;}
+.q-fig{text-align:center;margin:6px 0 10px;}
+.q-fig svg{max-width:100%;height:auto;}
+.q-note{font-size:.9rem;color:#334155;margin-bottom:6px;line-height:1.9;}
+.src{font-size:.78rem;color:#6b7280;font-weight:600;margin-left:6px;}
+.chap-nav{max-width:860px;margin:0 auto 40px;padding:0 16px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;}
+.chap-nav a{background:#fff;border:2px solid var(--pri);color:var(--pri-d);text-decoration:none;font-weight:800;padding:8px 18px;border-radius:24px;font-size:.92rem;}
+.chap-nav a.now{background:var(--pri);color:#fff;}
+.exp-tbl td b{color:var(--pri-d);}
+.sym-row{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin:10px 0;}
+.sym-item{text-align:center;font-size:.82rem;line-height:1.5;min-width:84px;}
+.sym-item svg{display:block;margin:0 auto 2px;}
+</style>
+</head>
+<body>
+<canvas id="confetti-canvas"></canvas>
+<header>
+  <h1>🌤️ 第2章 天気の観測</h1>
+  <p>雲量・天気記号・風・乾湿計</p>
+</header>
+<div class="units">
+<div class="unit-card" id="card_mt1">
+  <div class="unit-header">
+    <div class="unit-num">1</div>
+    <h2>雲量と天気</h2>
+  </div>
+  <div class="unit-body">
+    <div class="exp-text"><p>空全体を10としたとき、雲がしめる量を<b>雲量</b>といいます。雲量で天気を決めます。</p></div><div class="tbl-wrap"><table class="exp-tbl"><thead><tr><th>雲量</th><th>天気</th></tr></thead><tbody><tr><td class="nc">0〜1</td><td>快晴</td></tr><tr><td class="nc">2〜8</td><td>晴れ</td></tr><tr><td class="nc">9〜10</td><td>くもり</td></tr></tbody></table></div><div class="exp-img"><img src="img/zu12.png" alt="雲量のスケッチ"></div><div class="pt-box"><b>【重要】</b><br><b>雲量 0〜1 ＝ 快晴 ／ 2〜8 ＝ 晴れ ／ 9〜10 ＝ くもり</b><br>雨や雪が降っているときは、雲量に関係なく雨・雪の天気とします。</div><p>空全体が雲でおおわれている（全面黒）ときは<b>雲量10</b>で、天気は<b>くもり</b>です。</p>
+    <button class="mini-btn" onclick="toggleMini('mt1')">
+      🧪 ミニテストに挑戦！
+      <span id="mini-badge-mt1" style="background:#fff;color:var(--acc-d);border-radius:12px;padding:2px 10px;font-size:.82rem;margin-left:8px;">0 / 5</span>
+    </button>
+    <div class="mini-section" id="mini_mt1">
+      <div class="mini-score-row"><div class="mini-score-pip" id="pip_mt1_1"></div><div class="mini-score-pip" id="pip_mt1_2"></div><div class="mini-score-pip" id="pip_mt1_3"></div><div class="mini-score-pip" id="pip_mt1_4"></div><div class="mini-score-pip" id="pip_mt1_5"></div></div>
+      <div class="q-block" id="qblock_mt1_q1">
+  <h4>Q1. 雲量が1のときの天気は？</h4>
+  
+  <div class="choice-list" id="choices_mt1_q1">
+    <button class="choice-btn" onclick="pick4('mt1',1,0,2,'mt1_q1')">ア：雨</button>
+    <button class="choice-btn" onclick="pick4('mt1',1,1,2,'mt1_q1')">イ：くもり</button>
+    <button class="choice-btn" onclick="pick4('mt1',1,2,2,'mt1_q1')">ウ：快晴</button>
+    <button class="choice-btn" onclick="pick4('mt1',1,3,2,'mt1_q1')">エ：晴れ</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt1_q1"></div>
+  <div class="msample" id="samp_mt1_q1">正解: ウ：快晴　雲量0〜1が快晴です。</div>
+</div><div class="q-block" id="qblock_mt1_q2">
+  <h4>Q2. 雲量が5のときの天気は？</h4>
+  
+  <div class="choice-list" id="choices_mt1_q2">
+    <button class="choice-btn" onclick="pick4('mt1',2,0,2,'mt1_q2')">ア：快晴</button>
+    <button class="choice-btn" onclick="pick4('mt1',2,1,2,'mt1_q2')">イ：くもり</button>
+    <button class="choice-btn" onclick="pick4('mt1',2,2,2,'mt1_q2')">ウ：晴れ</button>
+    <button class="choice-btn" onclick="pick4('mt1',2,3,2,'mt1_q2')">エ：雪</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt1_q2"></div>
+  <div class="msample" id="samp_mt1_q2">正解: ウ：晴れ　雲量2〜8が晴れです。</div>
+</div><div class="q-block" id="qblock_mt1_q3">
+  <h4>Q3. 雲量が10（空全体が雲でおおわれている）のときの天気は？</h4>
+  
+  <div class="choice-list" id="choices_mt1_q3">
+    <button class="choice-btn" onclick="pick4('mt1',3,0,2,'mt1_q3')">ア：晴れ</button>
+    <button class="choice-btn" onclick="pick4('mt1',3,1,2,'mt1_q3')">イ：雪</button>
+    <button class="choice-btn" onclick="pick4('mt1',3,2,2,'mt1_q3')">ウ：くもり</button>
+    <button class="choice-btn" onclick="pick4('mt1',3,3,2,'mt1_q3')">エ：快晴</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt1_q3"></div>
+  <div class="msample" id="samp_mt1_q3">正解: ウ：くもり　雲量9〜10がくもりです。雲量10は全面黒です。</div>
+</div><div class="q-block" id="qblock_mt1_q4">
+  <h4>Q4. 空の半分が雲でおおわれています。天気は？</h4>
+  
+  <div class="choice-list" id="choices_mt1_q4">
+    <button class="choice-btn" onclick="pick4('mt1',4,0,2,'mt1_q4')">ア：雨</button>
+    <button class="choice-btn" onclick="pick4('mt1',4,1,2,'mt1_q4')">イ：快晴</button>
+    <button class="choice-btn" onclick="pick4('mt1',4,2,2,'mt1_q4')">ウ：晴れ</button>
+    <button class="choice-btn" onclick="pick4('mt1',4,3,2,'mt1_q4')">エ：くもり</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt1_q4"></div>
+  <div class="msample" id="samp_mt1_q4">正解: ウ：晴れ　雲量5なので晴れです。</div>
+</div><div class="q-block" id="qblock_mt1_q5">
+  <h4>Q5. □に入る言葉を選びましょう。</h4>
+  
+  <p class="q-note">雲量0〜1は①、2〜8は②、9〜10は③です。</p>
+  <div class="mchips" id="chips_mt1_q5"></div>
+  <div class="mdz-row"><span class="mdz-label">①</span><span class="mdz" id="mdz_mt1_q5_0" onclick="returnChip('mt1',5,0)">&nbsp;</span><span class="mdz-label">②</span><span class="mdz" id="mdz_mt1_q5_1" onclick="returnChip('mt1',5,1)">&nbsp;</span><span class="mdz-label">③</span><span class="mdz" id="mdz_mt1_q5_2" onclick="returnChip('mt1',5,2)">&nbsp;</span></div>
+  <div class="btn-row">
+    <button class="check-btn" onclick="checkMiniBank('mt1',5)">✔ 答え合わせ</button>
+    <button class="sample-btn" onclick="showSample('mt1',5)">💡 答えを見る</button>
+  </div>
+  <div class="fb-msg" id="fb_mt1_q5"></div>
+  <div class="msample" id="samp_mt1_q5">答え: ①=快晴 / ②=晴れ / ③=くもり</div>
+</div>
+      <div class="pass-banner" id="pass_mt1">🎉 この単元クリア！すばらしい！ 🎉</div>
+    </div>
+  </div>
+</div>
+<div class="unit-card" id="card_mt2">
+  <div class="unit-header">
+    <div class="unit-num">2</div>
+    <h2>天気記号</h2>
+  </div>
+  <div class="unit-body">
+    <div class="exp-text"><p>天気は記号で表します。</p></div><div class="exp-img"><div class="sym-row"><div class="sym-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-26 -26 52 52" width="70" height="70" role="img" aria-label="天気記号"><circle cx="0" cy="0" r="20" fill="#fff" stroke="#111" stroke-width="2.6"/></svg><b>快晴</b></div><div class="sym-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-26 -26 52 52" width="70" height="70" role="img" aria-label="天気記号"><circle cx="0" cy="0" r="20" fill="#fff" stroke="#111" stroke-width="2.6"/><line x1="0" y1="-20" x2="0" y2="20" stroke="#111" stroke-width="2.6"/></svg><b>晴れ</b></div><div class="sym-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-26 -26 52 52" width="70" height="70" role="img" aria-label="天気記号"><circle cx="0" cy="0" r="20" fill="#fff" stroke="#111" stroke-width="2.6"/><circle cx="0" cy="0" r="11.6" fill="none" stroke="#111" stroke-width="2.6"/></svg><b>くもり</b></div><div class="sym-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-26 -26 52 52" width="70" height="70" role="img" aria-label="天気記号"><circle cx="0" cy="0" r="20" fill="#111" stroke="#111" stroke-width="2.6"/></svg><b>雨</b></div><div class="sym-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-26 -26 52 52" width="70" height="70" role="img" aria-label="天気記号"><circle cx="0" cy="0" r="20" fill="#fff" stroke="#111" stroke-width="2.6"/><line x1="-14.1" y1="-14.1" x2="14.1" y2="14.1" stroke="#111" stroke-width="2.6"/><line x1="-14.1" y1="14.1" x2="14.1" y2="-14.1" stroke="#111" stroke-width="2.6"/></svg><b>雪</b></div></div><div class="cap">天気記号</div></div><div class="exp-img"><img src="img/zu14.png" alt="天気記号の例と暗記法"></div><div class="pt-box"><b>【重要】</b><br>快晴○ ／ 晴れ⦶ ／ くもり◎ ／ 雨● ／ 雪⊗<br>記号だけでなく天気名もセットで覚えます（例：◎＝くもり、○＝快晴）。</div><div class="exp-text"><p>霧・雷・あられの記号は、覚えなくてもよいです。</p></div>
+    <button class="mini-btn" onclick="toggleMini('mt2')">
+      🧪 ミニテストに挑戦！
+      <span id="mini-badge-mt2" style="background:#fff;color:var(--acc-d);border-radius:12px;padding:2px 10px;font-size:.82rem;margin-left:8px;">0 / 5</span>
+    </button>
+    <div class="mini-section" id="mini_mt2">
+      <div class="mini-score-row"><div class="mini-score-pip" id="pip_mt2_1"></div><div class="mini-score-pip" id="pip_mt2_2"></div><div class="mini-score-pip" id="pip_mt2_3"></div><div class="mini-score-pip" id="pip_mt2_4"></div><div class="mini-score-pip" id="pip_mt2_5"></div></div>
+      <div class="q-block" id="qblock_mt2_q1">
+  <h4>Q1. 「雨」の天気記号は？</h4>
+  
+  <div class="choice-list" id="choices_mt2_q1">
+    <button class="choice-btn" onclick="pick4('mt2',1,0,0,'mt2_q1')">ア：<svg xmlns="http://www.w3.org/2000/svg" viewBox="-26 -26 52 52" width="56" height="56" role="img" aria-label="天気記号"><circle cx="0" cy="0" r="20" fill="#111" stroke="#111" stroke-width="2.6"/></svg></button>
+    <button class="choice-btn" onclick="pick4('mt2',1,1,0,'mt2_q1')">イ：<svg xmlns="http://www.w3.org/2000/svg" viewBox="-26 -26 52 52" width="56" height="56" role="img" aria-label="天気記号"><circle cx="0" cy="0" r="20" fill="#fff" stroke="#111" stroke-width="2.6"/><line x1="0" y1="-20" x2="0" y2="20" stroke="#111" stroke-width="2.6"/></svg></button>
+    <button class="choice-btn" onclick="pick4('mt2',1,2,0,'mt2_q1')">ウ：<svg xmlns="http://www.w3.org/2000/svg" viewBox="-26 -26 52 52" width="56" height="56" role="img" aria-label="天気記号"><circle cx="0" cy="0" r="20" fill="#fff" stroke="#111" stroke-width="2.6"/><circle cx="0" cy="0" r="11.6" fill="none" stroke="#111" stroke-width="2.6"/></svg></button>
+    <button class="choice-btn" onclick="pick4('mt2',1,3,0,'mt2_q1')">エ：<svg xmlns="http://www.w3.org/2000/svg" viewBox="-26 -26 52 52" width="56" height="56" role="img" aria-label="天気記号"><circle cx="0" cy="0" r="20" fill="#fff" stroke="#111" stroke-width="2.6"/><line x1="-14.1" y1="-14.1" x2="14.1" y2="14.1" stroke="#111" stroke-width="2.6"/><line x1="-14.1" y1="14.1" x2="14.1" y2="-14.1" stroke="#111" stroke-width="2.6"/></svg></button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt2_q1"></div>
+  <div class="msample" id="samp_mt2_q1">正解: ア：（アの記号）　雨は黒くぬりつぶした円です。</div>
+</div><div class="q-block" id="qblock_mt2_q2">
+  <h4>Q2. 「くもり」の天気記号は？</h4>
+  
+  <div class="choice-list" id="choices_mt2_q2">
+    <button class="choice-btn" onclick="pick4('mt2',2,0,3,'mt2_q2')">ア：<svg xmlns="http://www.w3.org/2000/svg" viewBox="-26 -26 52 52" width="56" height="56" role="img" aria-label="天気記号"><circle cx="0" cy="0" r="20" fill="#fff" stroke="#111" stroke-width="2.6"/><line x1="0" y1="-20" x2="0" y2="20" stroke="#111" stroke-width="2.6"/></svg></button>
+    <button class="choice-btn" onclick="pick4('mt2',2,1,3,'mt2_q2')">イ：<svg xmlns="http://www.w3.org/2000/svg" viewBox="-26 -26 52 52" width="56" height="56" role="img" aria-label="天気記号"><circle cx="0" cy="0" r="20" fill="#fff" stroke="#111" stroke-width="2.6"/><line x1="-14.1" y1="-14.1" x2="14.1" y2="14.1" stroke="#111" stroke-width="2.6"/><line x1="-14.1" y1="14.1" x2="14.1" y2="-14.1" stroke="#111" stroke-width="2.6"/></svg></button>
+    <button class="choice-btn" onclick="pick4('mt2',2,2,3,'mt2_q2')">ウ：<svg xmlns="http://www.w3.org/2000/svg" viewBox="-26 -26 52 52" width="56" height="56" role="img" aria-label="天気記号"><circle cx="0" cy="0" r="20" fill="#fff" stroke="#111" stroke-width="2.6"/></svg></button>
+    <button class="choice-btn" onclick="pick4('mt2',2,3,3,'mt2_q2')">エ：<svg xmlns="http://www.w3.org/2000/svg" viewBox="-26 -26 52 52" width="56" height="56" role="img" aria-label="天気記号"><circle cx="0" cy="0" r="20" fill="#fff" stroke="#111" stroke-width="2.6"/><circle cx="0" cy="0" r="11.6" fill="none" stroke="#111" stroke-width="2.6"/></svg></button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt2_q2"></div>
+  <div class="msample" id="samp_mt2_q2">正解: エ：（エの記号）　二重丸◎がくもりです。</div>
+</div><div class="q-block" id="qblock_mt2_q3">
+  <h4>Q3. 「雪」の天気記号は？</h4>
+  
+  <div class="choice-list" id="choices_mt2_q3">
+    <button class="choice-btn" onclick="pick4('mt2',3,0,0,'mt2_q3')">ア：<svg xmlns="http://www.w3.org/2000/svg" viewBox="-26 -26 52 52" width="56" height="56" role="img" aria-label="天気記号"><circle cx="0" cy="0" r="20" fill="#fff" stroke="#111" stroke-width="2.6"/><line x1="-14.1" y1="-14.1" x2="14.1" y2="14.1" stroke="#111" stroke-width="2.6"/><line x1="-14.1" y1="14.1" x2="14.1" y2="-14.1" stroke="#111" stroke-width="2.6"/></svg></button>
+    <button class="choice-btn" onclick="pick4('mt2',3,1,0,'mt2_q3')">イ：<svg xmlns="http://www.w3.org/2000/svg" viewBox="-26 -26 52 52" width="56" height="56" role="img" aria-label="天気記号"><circle cx="0" cy="0" r="20" fill="#fff" stroke="#111" stroke-width="2.6"/><line x1="0" y1="-20" x2="0" y2="20" stroke="#111" stroke-width="2.6"/></svg></button>
+    <button class="choice-btn" onclick="pick4('mt2',3,2,0,'mt2_q3')">ウ：<svg xmlns="http://www.w3.org/2000/svg" viewBox="-26 -26 52 52" width="56" height="56" role="img" aria-label="天気記号"><circle cx="0" cy="0" r="20" fill="#111" stroke="#111" stroke-width="2.6"/></svg></button>
+    <button class="choice-btn" onclick="pick4('mt2',3,3,0,'mt2_q3')">エ：<svg xmlns="http://www.w3.org/2000/svg" viewBox="-26 -26 52 52" width="56" height="56" role="img" aria-label="天気記号"><circle cx="0" cy="0" r="20" fill="#fff" stroke="#111" stroke-width="2.6"/><circle cx="0" cy="0" r="11.6" fill="none" stroke="#111" stroke-width="2.6"/></svg></button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt2_q3"></div>
+  <div class="msample" id="samp_mt2_q3">正解: ア：（アの記号）　円の中に×印です。</div>
+</div><div class="q-block" id="qblock_mt2_q4">
+  <h4>Q4. 「快晴」の天気記号は？</h4>
+  
+  <div class="choice-list" id="choices_mt2_q4">
+    <button class="choice-btn" onclick="pick4('mt2',4,0,2,'mt2_q4')">ア：<svg xmlns="http://www.w3.org/2000/svg" viewBox="-26 -26 52 52" width="56" height="56" role="img" aria-label="天気記号"><circle cx="0" cy="0" r="20" fill="#111" stroke="#111" stroke-width="2.6"/></svg></button>
+    <button class="choice-btn" onclick="pick4('mt2',4,1,2,'mt2_q4')">イ：<svg xmlns="http://www.w3.org/2000/svg" viewBox="-26 -26 52 52" width="56" height="56" role="img" aria-label="天気記号"><circle cx="0" cy="0" r="20" fill="#fff" stroke="#111" stroke-width="2.6"/><circle cx="0" cy="0" r="11.6" fill="none" stroke="#111" stroke-width="2.6"/></svg></button>
+    <button class="choice-btn" onclick="pick4('mt2',4,2,2,'mt2_q4')">ウ：<svg xmlns="http://www.w3.org/2000/svg" viewBox="-26 -26 52 52" width="56" height="56" role="img" aria-label="天気記号"><circle cx="0" cy="0" r="20" fill="#fff" stroke="#111" stroke-width="2.6"/></svg></button>
+    <button class="choice-btn" onclick="pick4('mt2',4,3,2,'mt2_q4')">エ：<svg xmlns="http://www.w3.org/2000/svg" viewBox="-26 -26 52 52" width="56" height="56" role="img" aria-label="天気記号"><circle cx="0" cy="0" r="20" fill="#fff" stroke="#111" stroke-width="2.6"/><line x1="0" y1="-20" x2="0" y2="20" stroke="#111" stroke-width="2.6"/></svg></button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt2_q4"></div>
+  <div class="msample" id="samp_mt2_q4">正解: ウ：（ウの記号）　何も書かない○です。</div>
+</div><div class="q-block" id="qblock_mt2_q5">
+  <h4>Q5. 次の天気記号の名前を選びましょう。</h4>
+  
+  <p class="q-note">○は①、⦶は②、●は③です。</p>
+  <div class="mchips" id="chips_mt2_q5"></div>
+  <div class="mdz-row"><span class="mdz-label">①</span><span class="mdz" id="mdz_mt2_q5_0" onclick="returnChip('mt2',5,0)">&nbsp;</span><span class="mdz-label">②</span><span class="mdz" id="mdz_mt2_q5_1" onclick="returnChip('mt2',5,1)">&nbsp;</span><span class="mdz-label">③</span><span class="mdz" id="mdz_mt2_q5_2" onclick="returnChip('mt2',5,2)">&nbsp;</span></div>
+  <div class="btn-row">
+    <button class="check-btn" onclick="checkMiniBank('mt2',5)">✔ 答え合わせ</button>
+    <button class="sample-btn" onclick="showSample('mt2',5)">💡 答えを見る</button>
+  </div>
+  <div class="fb-msg" id="fb_mt2_q5"></div>
+  <div class="msample" id="samp_mt2_q5">答え: ①=快晴 / ②=晴れ / ③=雨</div>
+</div>
+      <div class="pass-banner" id="pass_mt2">🎉 この単元クリア！すばらしい！ 🎉</div>
+    </div>
+  </div>
+</div>
+<div class="unit-card" id="card_mt3">
+  <div class="unit-header">
+    <div class="unit-num">3</div>
+    <h2>風向と十六方位</h2>
+  </div>
+  <div class="unit-body">
+    <div class="exp-text"><p>風向は、<b>風がふいてくる方向</b>で表します。たとえば北から南へふく風は「北の風」です。</p><p>方位は北・東・南・西を基準に16に分けます。これを<b>十六方位</b>といいます。</p></div><div class="exp-img"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 420" width="360" height="360" role="img" aria-label="十六方位"><rect x="0" y="0" width="420" height="420" fill="#fff" rx="14"/><line x1="210" y1="210" x2="210.0" y2="90.0" stroke="#334155" stroke-width="3.2"/><line x1="210" y1="210" x2="255.9" y2="99.1" stroke="#334155" stroke-width="1.4"/><line x1="210" y1="210" x2="294.9" y2="125.1" stroke="#334155" stroke-width="2.2"/><line x1="210" y1="210" x2="320.9" y2="164.1" stroke="#334155" stroke-width="1.4"/><line x1="210" y1="210" x2="330.0" y2="210.0" stroke="#334155" stroke-width="3.2"/><line x1="210" y1="210" x2="320.9" y2="255.9" stroke="#334155" stroke-width="1.4"/><line x1="210" y1="210" x2="294.9" y2="294.9" stroke="#334155" stroke-width="2.2"/><line x1="210" y1="210" x2="255.9" y2="320.9" stroke="#334155" stroke-width="1.4"/><line x1="210" y1="210" x2="210.0" y2="330.0" stroke="#334155" stroke-width="3.2"/><line x1="210" y1="210" x2="164.1" y2="320.9" stroke="#334155" stroke-width="1.4"/><line x1="210" y1="210" x2="125.1" y2="294.9" stroke="#334155" stroke-width="2.2"/><line x1="210" y1="210" x2="99.1" y2="255.9" stroke="#334155" stroke-width="1.4"/><line x1="210" y1="210" x2="90.0" y2="210.0" stroke="#334155" stroke-width="3.2"/><line x1="210" y1="210" x2="99.1" y2="164.1" stroke="#334155" stroke-width="1.4"/><line x1="210" y1="210" x2="125.1" y2="125.1" stroke="#334155" stroke-width="2.2"/><line x1="210" y1="210" x2="164.1" y2="99.1" stroke="#334155" stroke-width="1.4"/><text x="210" y="38" text-anchor="middle" font-size="26" font-weight="900" fill="#075985">北</text><text x="392" y="218" text-anchor="middle" font-size="26" font-weight="900" fill="#075985">東</text><text x="210" y="402" text-anchor="middle" font-size="26" font-weight="900" fill="#075985">南</text><text x="28" y="218" text-anchor="middle" font-size="26" font-weight="900" fill="#075985">西</text><rect x="241.2" y="48.2" width="60" height="28" rx="6" fill="#fff" stroke="#0284c7" stroke-width="2"/><text x="271.2" y="68.2" text-anchor="middle" font-size="15" font-weight="800" fill="#0c4a6e">北北東</text><rect x="293.1" y="82.9" width="60" height="28" rx="6" fill="#fff" stroke="#0284c7" stroke-width="2"/><text x="323.1" y="102.9" text-anchor="middle" font-size="15" font-weight="800" fill="#0c4a6e">北東</text><rect x="327.8" y="134.8" width="60" height="28" rx="6" fill="#fff" stroke="#0284c7" stroke-width="2"/><text x="357.8" y="154.8" text-anchor="middle" font-size="15" font-weight="800" fill="#0c4a6e">東北東</text><rect x="327.8" y="257.2" width="60" height="28" rx="6" fill="#fff" stroke="#0284c7" stroke-width="2"/><text x="357.8" y="277.2" text-anchor="middle" font-size="15" font-weight="800" fill="#0c4a6e">東南東</text><rect x="293.1" y="309.1" width="60" height="28" rx="6" fill="#fff" stroke="#0284c7" stroke-width="2"/><text x="323.1" y="329.1" text-anchor="middle" font-size="15" font-weight="800" fill="#0c4a6e">南東</text><rect x="241.2" y="343.8" width="60" height="28" rx="6" fill="#fff" stroke="#0284c7" stroke-width="2"/><text x="271.2" y="363.8" text-anchor="middle" font-size="15" font-weight="800" fill="#0c4a6e">南南東</text><rect x="118.8" y="343.8" width="60" height="28" rx="6" fill="#fff" stroke="#0284c7" stroke-width="2"/><text x="148.8" y="363.8" text-anchor="middle" font-size="15" font-weight="800" fill="#0c4a6e">南南西</text><rect x="66.9" y="309.1" width="60" height="28" rx="6" fill="#fff" stroke="#0284c7" stroke-width="2"/><text x="96.9" y="329.1" text-anchor="middle" font-size="15" font-weight="800" fill="#0c4a6e">南西</text><rect x="32.2" y="257.2" width="60" height="28" rx="6" fill="#fff" stroke="#0284c7" stroke-width="2"/><text x="62.2" y="277.2" text-anchor="middle" font-size="15" font-weight="800" fill="#0c4a6e">西南西</text><rect x="32.2" y="134.8" width="60" height="28" rx="6" fill="#fff" stroke="#0284c7" stroke-width="2"/><text x="62.2" y="154.8" text-anchor="middle" font-size="15" font-weight="800" fill="#0c4a6e">西北西</text><rect x="66.9" y="82.9" width="60" height="28" rx="6" fill="#fff" stroke="#0284c7" stroke-width="2"/><text x="96.9" y="102.9" text-anchor="middle" font-size="15" font-weight="800" fill="#0c4a6e">北西</text><rect x="118.8" y="48.2" width="60" height="28" rx="6" fill="#fff" stroke="#0284c7" stroke-width="2"/><text x="148.8" y="68.2" text-anchor="middle" font-size="15" font-weight="800" fill="#0c4a6e">北北西</text></svg><div class="cap">十六方位</div></div><div class="exp-img"><img src="img/zu15.png" alt="ふき流しの図"></div><div class="exp-img"><img src="img/zu17.png" alt="北半球の気象状況"></div><div class="pt-box"><b>【重要】</b><br>風向 ＝ 風がふいて<b>くる</b>方向<br>北東の風 ＝ 北東からふいてくる風</div><div class="exp-img"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 380" width="300" height="300" role="img" aria-label="風の矢印A・B・C"><rect width="380" height="380" fill="#fff" rx="14"/><line x1="190" y1="30" x2="190" y2="350" stroke="#334155" stroke-width="2.5"/><line x1="30" y1="190" x2="350" y2="190" stroke="#334155" stroke-width="2.5"/><text x="190" y="24" text-anchor="middle" font-size="22" font-weight="900" fill="#075985">北</text><text x="190" y="372" text-anchor="middle" font-size="22" font-weight="900" fill="#075985">南</text><text x="16" y="198" text-anchor="middle" font-size="22" font-weight="900" fill="#075985">西</text><text x="364" y="198" text-anchor="middle" font-size="22" font-weight="900" fill="#075985">東</text><line x1="310" y1="70" x2="214.9" y2="165.1" stroke="#0369a1" stroke-width="9" stroke-linecap="round"/><polygon points="205,175 212.2,154.2 225.8,167.8" fill="#0369a1"/><line x1="70" y1="70" x2="165.1" y2="165.1" stroke="#0369a1" stroke-width="9" stroke-linecap="round"/><polygon points="175,175 154.2,167.8 167.8,154.2" fill="#0369a1"/><line x1="70" y1="310" x2="165.1" y2="214.9" stroke="#0369a1" stroke-width="9" stroke-linecap="round"/><polygon points="175,205 167.8,225.8 154.2,212.2" fill="#0369a1"/><text x="318" y="64" font-size="24" font-weight="900" fill="#111">A</text><text x="46" y="64" font-size="24" font-weight="900" fill="#111">B</text><text x="46" y="334" font-size="24" font-weight="900" fill="#111">C</text></svg><div class="cap">風の矢印A・B・C</div></div>
+    <button class="mini-btn" onclick="toggleMini('mt3')">
+      🧪 ミニテストに挑戦！
+      <span id="mini-badge-mt3" style="background:#fff;color:var(--acc-d);border-radius:12px;padding:2px 10px;font-size:.82rem;margin-left:8px;">0 / 5</span>
+    </button>
+    <div class="mini-section" id="mini_mt3">
+      <div class="mini-score-row"><div class="mini-score-pip" id="pip_mt3_1"></div><div class="mini-score-pip" id="pip_mt3_2"></div><div class="mini-score-pip" id="pip_mt3_3"></div><div class="mini-score-pip" id="pip_mt3_4"></div><div class="mini-score-pip" id="pip_mt3_5"></div></div>
+      <div class="q-block" id="qblock_mt3_q1">
+  <h4>Q1. 北から南へふく風の風向は？</h4>
+  
+  <div class="choice-list" id="choices_mt3_q1">
+    <button class="choice-btn" onclick="pick4('mt3',1,0,3,'mt3_q1')">ア：西</button>
+    <button class="choice-btn" onclick="pick4('mt3',1,1,3,'mt3_q1')">イ：南</button>
+    <button class="choice-btn" onclick="pick4('mt3',1,2,3,'mt3_q1')">ウ：東</button>
+    <button class="choice-btn" onclick="pick4('mt3',1,3,3,'mt3_q1')">エ：北</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt3_q1"></div>
+  <div class="msample" id="samp_mt3_q1">正解: エ：北　風向は風がふいてくる方向です。</div>
+</div><div class="q-block" id="qblock_mt3_q2">
+  <h4>Q2. 図の矢印Aは北東から南西へふいています。風向は？</h4>
+  
+  <div class="choice-list" id="choices_mt3_q2">
+    <button class="choice-btn" onclick="pick4('mt3',2,0,1,'mt3_q2')">ア：南東</button>
+    <button class="choice-btn" onclick="pick4('mt3',2,1,1,'mt3_q2')">イ：北東</button>
+    <button class="choice-btn" onclick="pick4('mt3',2,2,1,'mt3_q2')">ウ：南西</button>
+    <button class="choice-btn" onclick="pick4('mt3',2,3,1,'mt3_q2')">エ：北西</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt3_q2"></div>
+  <div class="msample" id="samp_mt3_q2">正解: イ：北東　ふいてくる方向が風向です。</div>
+</div><div class="q-block" id="qblock_mt3_q3">
+  <h4>Q3. 図の矢印Bは北西から南東へふいています。風向は？</h4>
+  
+  <div class="choice-list" id="choices_mt3_q3">
+    <button class="choice-btn" onclick="pick4('mt3',3,0,1,'mt3_q3')">ア：北東</button>
+    <button class="choice-btn" onclick="pick4('mt3',3,1,1,'mt3_q3')">イ：北西</button>
+    <button class="choice-btn" onclick="pick4('mt3',3,2,1,'mt3_q3')">ウ：南東</button>
+    <button class="choice-btn" onclick="pick4('mt3',3,3,1,'mt3_q3')">エ：南西</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt3_q3"></div>
+  <div class="msample" id="samp_mt3_q3">正解: イ：北西　ふいてくる方向が風向です。</div>
+</div><div class="q-block" id="qblock_mt3_q4">
+  <h4>Q4. 図の矢印Cは南西から北東へふいています。風向は？</h4>
+  
+  <div class="choice-list" id="choices_mt3_q4">
+    <button class="choice-btn" onclick="pick4('mt3',4,0,1,'mt3_q4')">ア：北西</button>
+    <button class="choice-btn" onclick="pick4('mt3',4,1,1,'mt3_q4')">イ：南西</button>
+    <button class="choice-btn" onclick="pick4('mt3',4,2,1,'mt3_q4')">ウ：北東</button>
+    <button class="choice-btn" onclick="pick4('mt3',4,3,1,'mt3_q4')">エ：南東</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt3_q4"></div>
+  <div class="msample" id="samp_mt3_q4">正解: イ：南西　ふいてくる方向が風向です。</div>
+</div><div class="q-block" id="qblock_mt3_q5">
+  <h4>Q5. 十六方位の図で、□に入る方位を選びましょう。</h4>
+  
+  <p class="q-note">北と東の間の真ん中は①、東と南の間の真ん中は②、南と西の間は③です。</p>
+  <div class="mchips" id="chips_mt3_q5"></div>
+  <div class="mdz-row"><span class="mdz-label">①</span><span class="mdz" id="mdz_mt3_q5_0" onclick="returnChip('mt3',5,0)">&nbsp;</span><span class="mdz-label">②</span><span class="mdz" id="mdz_mt3_q5_1" onclick="returnChip('mt3',5,1)">&nbsp;</span><span class="mdz-label">③</span><span class="mdz" id="mdz_mt3_q5_2" onclick="returnChip('mt3',5,2)">&nbsp;</span></div>
+  <div class="btn-row">
+    <button class="check-btn" onclick="checkMiniBank('mt3',5)">✔ 答え合わせ</button>
+    <button class="sample-btn" onclick="showSample('mt3',5)">💡 答えを見る</button>
+  </div>
+  <div class="fb-msg" id="fb_mt3_q5"></div>
+  <div class="msample" id="samp_mt3_q5">答え: ①=北東 / ②=南東 / ③=南西</div>
+</div>
+      <div class="pass-banner" id="pass_mt3">🎉 この単元クリア！すばらしい！ 🎉</div>
+    </div>
+  </div>
+</div>
+<div class="unit-card" id="card_mt4">
+  <div class="unit-header">
+    <div class="unit-num">4</div>
+    <h2>風力と矢羽根</h2>
+  </div>
+  <div class="unit-body">
+    <div class="exp-text"><p>風の強さは<b>風力</b>で表します。風力は0〜12の13階級あります。</p><p>天気記号には、風向を表す<b>矢</b>と、風力を表す<b>矢羽根</b>をつけます。矢羽根の<b>本数が風力</b>です。</p></div><div class="exp-img"><img src="img/zu13.png" alt="風力階級表"></div><div class="sym-row"><div class="sym-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-80 -80 160 160" width="90" height="90" role="img" aria-label="天気記号"><g transform="rotate(180)"><line x1="20" y1="0" x2="76" y2="0" stroke="#111" stroke-width="2.6"/><line x1="66.0" y1="0" x2="81.6" y2="15.6" stroke="#111" stroke-width="2.6"/></g><circle cx="0" cy="0" r="20" fill="#fff" stroke="#111" stroke-width="2.6"/><line x1="0" y1="-20" x2="0" y2="20" stroke="#111" stroke-width="2.6"/></svg>風向 西、風力1</div><div class="sym-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-80 -80 160 160" width="90" height="90" role="img" aria-label="天気記号"><g transform="rotate(180)"><line x1="20" y1="0" x2="76" y2="0" stroke="#111" stroke-width="2.6"/><line x1="66.0" y1="0" x2="81.6" y2="15.6" stroke="#111" stroke-width="2.6"/><line x1="58.0" y1="0" x2="73.6" y2="15.6" stroke="#111" stroke-width="2.6"/></g><circle cx="0" cy="0" r="20" fill="#fff" stroke="#111" stroke-width="2.6"/><line x1="0" y1="-20" x2="0" y2="20" stroke="#111" stroke-width="2.6"/></svg>風向 西、風力2</div><div class="sym-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-80 -80 160 160" width="90" height="90" role="img" aria-label="天気記号"><g transform="rotate(180)"><line x1="20" y1="0" x2="76" y2="0" stroke="#111" stroke-width="2.6"/><line x1="66.0" y1="0" x2="81.6" y2="15.6" stroke="#111" stroke-width="2.6"/><line x1="58.0" y1="0" x2="73.6" y2="15.6" stroke="#111" stroke-width="2.6"/><line x1="50.0" y1="0" x2="65.6" y2="15.6" stroke="#111" stroke-width="2.6"/></g><circle cx="0" cy="0" r="20" fill="#fff" stroke="#111" stroke-width="2.6"/><line x1="0" y1="-20" x2="0" y2="20" stroke="#111" stroke-width="2.6"/></svg>風向 西、風力3</div><div class="sym-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-80 -80 160 160" width="90" height="90" role="img" aria-label="天気記号"><g transform="rotate(180)"><line x1="20" y1="0" x2="76" y2="0" stroke="#111" stroke-width="2.6"/><line x1="66.0" y1="0" x2="81.6" y2="15.6" stroke="#111" stroke-width="2.6"/><line x1="58.0" y1="0" x2="73.6" y2="15.6" stroke="#111" stroke-width="2.6"/><line x1="50.0" y1="0" x2="65.6" y2="15.6" stroke="#111" stroke-width="2.6"/><line x1="42.0" y1="0" x2="57.6" y2="15.6" stroke="#111" stroke-width="2.6"/></g><circle cx="0" cy="0" r="20" fill="#fff" stroke="#111" stroke-width="2.6"/><line x1="0" y1="-20" x2="0" y2="20" stroke="#111" stroke-width="2.6"/></svg>風向 西、風力4</div></div><div class="pt-box"><b>【重要】</b><br>矢の向き ＝ 風向（<b>風がふいてくる方向</b>に矢がのびます）<br>矢羽根の本数 ＝ 風力</div><p>風力1は矢羽根1本、風力2は2本…と、風力の数だけ矢羽根をつけます（テキストの風力階級表のとおり）。</p>
+    <button class="mini-btn" onclick="toggleMini('mt4')">
+      🧪 ミニテストに挑戦！
+      <span id="mini-badge-mt4" style="background:#fff;color:var(--acc-d);border-radius:12px;padding:2px 10px;font-size:.82rem;margin-left:8px;">0 / 5</span>
+    </button>
+    <div class="mini-section" id="mini_mt4">
+      <div class="mini-score-row"><div class="mini-score-pip" id="pip_mt4_1"></div><div class="mini-score-pip" id="pip_mt4_2"></div><div class="mini-score-pip" id="pip_mt4_3"></div><div class="mini-score-pip" id="pip_mt4_4"></div><div class="mini-score-pip" id="pip_mt4_5"></div></div>
+      <div class="q-block" id="qblock_mt4_q1">
+  <h4>Q1. 矢羽根が3本あります。風力は？</h4>
+  
+  <div class="choice-list" id="choices_mt4_q1">
+    <button class="choice-btn" onclick="pick4('mt4',1,0,2,'mt4_q1')">ア：2</button>
+    <button class="choice-btn" onclick="pick4('mt4',1,1,2,'mt4_q1')">イ：1</button>
+    <button class="choice-btn" onclick="pick4('mt4',1,2,2,'mt4_q1')">ウ：3</button>
+    <button class="choice-btn" onclick="pick4('mt4',1,3,2,'mt4_q1')">エ：4</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt4_q1"></div>
+  <div class="msample" id="samp_mt4_q1">正解: ウ：3　本数が風力です。</div>
+</div><div class="q-block" id="qblock_mt4_q2">
+  <h4>Q2. 風力は何階級に分けられますか。</h4>
+  
+  <div class="choice-list" id="choices_mt4_q2">
+    <button class="choice-btn" onclick="pick4('mt4',2,0,3,'mt4_q2')">ア：5階級</button>
+    <button class="choice-btn" onclick="pick4('mt4',2,1,3,'mt4_q2')">イ：12階級</button>
+    <button class="choice-btn" onclick="pick4('mt4',2,2,3,'mt4_q2')">ウ：10階級</button>
+    <button class="choice-btn" onclick="pick4('mt4',2,3,3,'mt4_q2')">エ：13階級</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt4_q2"></div>
+  <div class="msample" id="samp_mt4_q2">正解: エ：13階級　0〜12の13階級です。</div>
+</div><div class="q-block" id="qblock_mt4_q3">
+  <h4>Q3. 矢が西にのびている天気記号の風向は？</h4>
+  
+  <div class="choice-list" id="choices_mt4_q3">
+    <button class="choice-btn" onclick="pick4('mt4',3,0,0,'mt4_q3')">ア：西</button>
+    <button class="choice-btn" onclick="pick4('mt4',3,1,0,'mt4_q3')">イ：東</button>
+    <button class="choice-btn" onclick="pick4('mt4',3,2,0,'mt4_q3')">ウ：北</button>
+    <button class="choice-btn" onclick="pick4('mt4',3,3,0,'mt4_q3')">エ：南</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt4_q3"></div>
+  <div class="msample" id="samp_mt4_q3">正解: ア：西　矢のある方向が風向です。</div>
+</div><div class="q-block" id="qblock_mt4_q4">
+  <h4>Q4. 矢が南東にのびている天気記号の風向は？</h4>
+  
+  <div class="choice-list" id="choices_mt4_q4">
+    <button class="choice-btn" onclick="pick4('mt4',4,0,1,'mt4_q4')">ア：北西</button>
+    <button class="choice-btn" onclick="pick4('mt4',4,1,1,'mt4_q4')">イ：南東</button>
+    <button class="choice-btn" onclick="pick4('mt4',4,2,1,'mt4_q4')">ウ：南西</button>
+    <button class="choice-btn" onclick="pick4('mt4',4,3,1,'mt4_q4')">エ：北東</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt4_q4"></div>
+  <div class="msample" id="samp_mt4_q4">正解: イ：南東　矢のある方向が風向です。</div>
+</div><div class="q-block" id="qblock_mt4_q5">
+  <h4>Q5. □に入る言葉を選びましょう。</h4>
+  
+  <p class="q-note">矢の向きが①、矢羽根の本数が②を表します。</p>
+  <div class="mchips" id="chips_mt4_q5"></div>
+  <div class="mdz-row"><span class="mdz-label">①</span><span class="mdz" id="mdz_mt4_q5_0" onclick="returnChip('mt4',5,0)">&nbsp;</span><span class="mdz-label">②</span><span class="mdz" id="mdz_mt4_q5_1" onclick="returnChip('mt4',5,1)">&nbsp;</span></div>
+  <div class="btn-row">
+    <button class="check-btn" onclick="checkMiniBank('mt4',5)">✔ 答え合わせ</button>
+    <button class="sample-btn" onclick="showSample('mt4',5)">💡 答えを見る</button>
+  </div>
+  <div class="fb-msg" id="fb_mt4_q5"></div>
+  <div class="msample" id="samp_mt4_q5">答え: ①=風向 / ②=風力</div>
+</div>
+      <div class="pass-banner" id="pass_mt4">🎉 この単元クリア！すばらしい！ 🎉</div>
+    </div>
+  </div>
+</div>
+<div class="unit-card" id="card_mt5">
+  <div class="unit-header">
+    <div class="unit-num">5</div>
+    <h2>気温と乾湿計</h2>
+  </div>
+  <div class="unit-body">
+    <div class="exp-text"><p>気温は、温度計に直接日光が当たらないよう、風通しのよい日かげではかります。地上約1.5mの高さではかるのが基本です。</p><p><b>乾湿計</b>は、2本の温度計を並べたものです。片方はぬれたガーゼで球部をつつんだ<b>湿球</b>、もう片方は<b>乾球</b>です。</p><p>湿球はガーゼの水が<b>蒸発するときに熱をうばう</b>ので、ふつう乾球より低い温度を示します。</p></div><div class="exp-img"><img src="img/zu16.png" alt="乾湿計"></div><div class="exp-img"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 380" width="280" role="img" aria-label="温度計の目盛り"><rect width="280" height="380" fill="#fff" rx="12"/><text x="84" y="26" text-anchor="middle" font-size="18" font-weight="900" fill="#075985">乾球</text><rect x="70" y="34" width="28" height="312" rx="6" fill="#f8fafc" stroke="#334155" stroke-width="2"/><rect x="77" y="235.0" width="14" height="111.0" fill="#111"/><line x1="50" y1="340.0" x2="70" y2="340.0" stroke="#334155" stroke-width="2"/><text x="46" y="345.0" text-anchor="end" font-size="16" font-weight="800" fill="#111">10</text><line x1="62" y1="325.0" x2="70" y2="325.0" stroke="#334155" stroke-width="1.2"/><line x1="62" y1="310.0" x2="70" y2="310.0" stroke="#334155" stroke-width="1.2"/><line x1="62" y1="295.0" x2="70" y2="295.0" stroke="#334155" stroke-width="1.2"/><line x1="62" y1="280.0" x2="70" y2="280.0" stroke="#334155" stroke-width="1.2"/><line x1="56" y1="265.0" x2="70" y2="265.0" stroke="#334155" stroke-width="1.2"/><line x1="62" y1="250.0" x2="70" y2="250.0" stroke="#334155" stroke-width="1.2"/><line x1="62" y1="235.0" x2="70" y2="235.0" stroke="#334155" stroke-width="1.2"/><line x1="62" y1="220.0" x2="70" y2="220.0" stroke="#334155" stroke-width="1.2"/><line x1="62" y1="205.0" x2="70" y2="205.0" stroke="#334155" stroke-width="1.2"/><line x1="50" y1="190.0" x2="70" y2="190.0" stroke="#334155" stroke-width="2"/><text x="46" y="195.0" text-anchor="end" font-size="16" font-weight="800" fill="#111">20</text><line x1="62" y1="175.0" x2="70" y2="175.0" stroke="#334155" stroke-width="1.2"/><line x1="62" y1="160.0" x2="70" y2="160.0" stroke="#334155" stroke-width="1.2"/><line x1="62" y1="145.0" x2="70" y2="145.0" stroke="#334155" stroke-width="1.2"/><line x1="62" y1="130.0" x2="70" y2="130.0" stroke="#334155" stroke-width="1.2"/><line x1="56" y1="115.0" x2="70" y2="115.0" stroke="#334155" stroke-width="1.2"/><line x1="62" y1="100.0" x2="70" y2="100.0" stroke="#334155" stroke-width="1.2"/><line x1="62" y1="85.0" x2="70" y2="85.0" stroke="#334155" stroke-width="1.2"/><line x1="62" y1="70.0" x2="70" y2="70.0" stroke="#334155" stroke-width="1.2"/><line x1="62" y1="55.0" x2="70" y2="55.0" stroke="#334155" stroke-width="1.2"/><line x1="50" y1="40.0" x2="70" y2="40.0" stroke="#334155" stroke-width="2"/><text x="46" y="45.0" text-anchor="end" font-size="16" font-weight="800" fill="#111">30</text><text x="194" y="26" text-anchor="middle" font-size="18" font-weight="900" fill="#075985">湿球</text><rect x="180" y="34" width="28" height="312" rx="6" fill="#f8fafc" stroke="#334155" stroke-width="2"/><rect x="187" y="280.0" width="14" height="66.0" fill="#111"/><line x1="160" y1="340.0" x2="180" y2="340.0" stroke="#334155" stroke-width="2"/><text x="156" y="345.0" text-anchor="end" font-size="16" font-weight="800" fill="#111">10</text><line x1="172" y1="325.0" x2="180" y2="325.0" stroke="#334155" stroke-width="1.2"/><line x1="172" y1="310.0" x2="180" y2="310.0" stroke="#334155" stroke-width="1.2"/><line x1="172" y1="295.0" x2="180" y2="295.0" stroke="#334155" stroke-width="1.2"/><line x1="172" y1="280.0" x2="180" y2="280.0" stroke="#334155" stroke-width="1.2"/><line x1="166" y1="265.0" x2="180" y2="265.0" stroke="#334155" stroke-width="1.2"/><line x1="172" y1="250.0" x2="180" y2="250.0" stroke="#334155" stroke-width="1.2"/><line x1="172" y1="235.0" x2="180" y2="235.0" stroke="#334155" stroke-width="1.2"/><line x1="172" y1="220.0" x2="180" y2="220.0" stroke="#334155" stroke-width="1.2"/><line x1="172" y1="205.0" x2="180" y2="205.0" stroke="#334155" stroke-width="1.2"/><line x1="160" y1="190.0" x2="180" y2="190.0" stroke="#334155" stroke-width="2"/><text x="156" y="195.0" text-anchor="end" font-size="16" font-weight="800" fill="#111">20</text><line x1="172" y1="175.0" x2="180" y2="175.0" stroke="#334155" stroke-width="1.2"/><line x1="172" y1="160.0" x2="180" y2="160.0" stroke="#334155" stroke-width="1.2"/><line x1="172" y1="145.0" x2="180" y2="145.0" stroke="#334155" stroke-width="1.2"/><line x1="172" y1="130.0" x2="180" y2="130.0" stroke="#334155" stroke-width="1.2"/><line x1="166" y1="115.0" x2="180" y2="115.0" stroke="#334155" stroke-width="1.2"/><line x1="172" y1="100.0" x2="180" y2="100.0" stroke="#334155" stroke-width="1.2"/><line x1="172" y1="85.0" x2="180" y2="85.0" stroke="#334155" stroke-width="1.2"/><line x1="172" y1="70.0" x2="180" y2="70.0" stroke="#334155" stroke-width="1.2"/><line x1="172" y1="55.0" x2="180" y2="55.0" stroke="#334155" stroke-width="1.2"/><line x1="160" y1="40.0" x2="180" y2="40.0" stroke="#334155" stroke-width="2"/><text x="156" y="45.0" text-anchor="end" font-size="16" font-weight="800" fill="#111">30</text></svg><div class="cap">乾球17℃、湿球14℃の例</div></div><div class="pt-box"><b>【重要】</b><br>乾球と湿球の温度の差が<b>大きい</b>ほど、湿度は<b>低い</b>（かわいている）。<br>湿度100%のときは、乾球と湿球の示度が同じ（差が0）になります。</div>
+    <button class="mini-btn" onclick="toggleMini('mt5')">
+      🧪 ミニテストに挑戦！
+      <span id="mini-badge-mt5" style="background:#fff;color:var(--acc-d);border-radius:12px;padding:2px 10px;font-size:.82rem;margin-left:8px;">0 / 5</span>
+    </button>
+    <div class="mini-section" id="mini_mt5">
+      <div class="mini-score-row"><div class="mini-score-pip" id="pip_mt5_1"></div><div class="mini-score-pip" id="pip_mt5_2"></div><div class="mini-score-pip" id="pip_mt5_3"></div><div class="mini-score-pip" id="pip_mt5_4"></div><div class="mini-score-pip" id="pip_mt5_5"></div></div>
+      <div class="q-block" id="qblock_mt5_q1">
+  <h4>Q1. ガーゼをまいてあるのはどちらの温度計？</h4>
+  
+  <div class="choice-list" id="choices_mt5_q1">
+    <button class="choice-btn" onclick="pick4('mt5',1,0,0,'mt5_q1')">ア：湿球</button>
+    <button class="choice-btn" onclick="pick4('mt5',1,1,0,'mt5_q1')">イ：乾球</button>
+    <button class="choice-btn" onclick="pick4('mt5',1,2,0,'mt5_q1')">ウ：どちらでもない</button>
+    <button class="choice-btn" onclick="pick4('mt5',1,3,0,'mt5_q1')">エ：両方</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt5_q1"></div>
+  <div class="msample" id="samp_mt5_q1">正解: ア：湿球　ぬれたガーゼが湿球です。</div>
+</div><div class="q-block" id="qblock_mt5_q2">
+  <h4>Q2. ふつう、示度が低いのは？</h4>
+  
+  <div class="choice-list" id="choices_mt5_q2">
+    <button class="choice-btn" onclick="pick4('mt5',2,0,1,'mt5_q2')">ア：乾球</button>
+    <button class="choice-btn" onclick="pick4('mt5',2,1,1,'mt5_q2')">イ：湿球</button>
+    <button class="choice-btn" onclick="pick4('mt5',2,2,1,'mt5_q2')">ウ：同じ</button>
+    <button class="choice-btn" onclick="pick4('mt5',2,3,1,'mt5_q2')">エ：日によって違う</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt5_q2"></div>
+  <div class="msample" id="samp_mt5_q2">正解: イ：湿球　水が蒸発するとき熱をうばうからです。</div>
+</div><div class="q-block" id="qblock_mt5_q3">
+  <h4>Q3. 乾球17℃、湿球14℃の差は？</h4>
+  
+  <div class="choice-list" id="choices_mt5_q3">
+    <button class="choice-btn" onclick="pick4('mt5',3,0,0,'mt5_q3')">ア：3℃</button>
+    <button class="choice-btn" onclick="pick4('mt5',3,1,0,'mt5_q3')">イ：2℃</button>
+    <button class="choice-btn" onclick="pick4('mt5',3,2,0,'mt5_q3')">ウ：31℃</button>
+    <button class="choice-btn" onclick="pick4('mt5',3,3,0,'mt5_q3')">エ：4℃</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt5_q3"></div>
+  <div class="msample" id="samp_mt5_q3">正解: ア：3℃　17−14＝3℃です。</div>
+</div><div class="q-block" id="qblock_mt5_q4">
+  <h4>Q4. 湿度が100%のとき、乾球と湿球の差は？</h4>
+  
+  <div class="choice-list" id="choices_mt5_q4">
+    <button class="choice-btn" onclick="pick4('mt5',4,0,2,'mt5_q4')">ア：1℃</button>
+    <button class="choice-btn" onclick="pick4('mt5',4,1,2,'mt5_q4')">イ：5℃</button>
+    <button class="choice-btn" onclick="pick4('mt5',4,2,2,'mt5_q4')">ウ：0℃</button>
+    <button class="choice-btn" onclick="pick4('mt5',4,3,2,'mt5_q4')">エ：10℃</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt5_q4"></div>
+  <div class="msample" id="samp_mt5_q4">正解: ウ：0℃　空気が水蒸気でいっぱいなので蒸発しません。</div>
+</div><div class="q-block" id="qblock_mt5_q5">
+  <h4>Q5. □に入る言葉を選びましょう。</h4>
+  
+  <p class="q-note">湿球のガーゼから水が①するとき、熱を②ので、湿球は乾球より低くなります。</p>
+  <div class="mchips" id="chips_mt5_q5"></div>
+  <div class="mdz-row"><span class="mdz-label">①</span><span class="mdz" id="mdz_mt5_q5_0" onclick="returnChip('mt5',5,0)">&nbsp;</span><span class="mdz-label">②</span><span class="mdz" id="mdz_mt5_q5_1" onclick="returnChip('mt5',5,1)">&nbsp;</span></div>
+  <div class="btn-row">
+    <button class="check-btn" onclick="checkMiniBank('mt5',5)">✔ 答え合わせ</button>
+    <button class="sample-btn" onclick="showSample('mt5',5)">💡 答えを見る</button>
+  </div>
+  <div class="fb-msg" id="fb_mt5_q5"></div>
+  <div class="msample" id="samp_mt5_q5">答え: ①=蒸発 / ②=うばう</div>
+</div>
+      <div class="pass-banner" id="pass_mt5">🎉 この単元クリア！すばらしい！ 🎉</div>
+    </div>
+  </div>
+</div>
+<div class="unit-card" id="card_mt6">
+  <div class="unit-header">
+    <div class="unit-num">6</div>
+    <h2>湿度表の読み方</h2>
+  </div>
+  <div class="unit-body">
+    <div class="exp-text"><p>乾球の示度と、乾球と湿球の<b>差</b>から、<b>湿度表</b>で湿度を読みます。</p><p>たとえば乾球20℃、湿球17℃のとき、差は3℃です。湿度表で「乾球20℃」の行と「差3.0℃」の列が交わるところを読むと、<b>73%</b>です。</p></div><div class="exp-img"><img src="img/zu18.png" alt="乾湿計の目盛り"></div><div class="exp-img"><img src="img/zu19.png" alt="湿度表"></div><div class="pt-box"><b>【重要】</b><br><b>① 乾球の示度を読む　② 差を求める　③ 表で交わる所を読む</b></div><p>湿度表では、乾球20℃・差3.0℃の湿度は<b>73%</b>です。</p>
+    <button class="mini-btn" onclick="toggleMini('mt6')">
+      🧪 ミニテストに挑戦！
+      <span id="mini-badge-mt6" style="background:#fff;color:var(--acc-d);border-radius:12px;padding:2px 10px;font-size:.82rem;margin-left:8px;">0 / 5</span>
+    </button>
+    <div class="mini-section" id="mini_mt6">
+      <div class="mini-score-row"><div class="mini-score-pip" id="pip_mt6_1"></div><div class="mini-score-pip" id="pip_mt6_2"></div><div class="mini-score-pip" id="pip_mt6_3"></div><div class="mini-score-pip" id="pip_mt6_4"></div><div class="mini-score-pip" id="pip_mt6_5"></div></div>
+      <div class="q-block" id="qblock_mt6_q1">
+  <h4>Q1. 湿度の求め方の順に並べましょう。</h4>
+  
+  <p class="q-note">①乾球を読む → ②乾球と湿球の差を求める → ③湿度表で交わる所を読む。</p>
+  <div class="mchips" id="chips_mt6_q1"></div>
+  <div class="mdz-row"><span class="mdz-label">①</span><span class="mdz" id="mdz_mt6_q1_0" onclick="returnChip('mt6',1,0)">&nbsp;</span><span class="mdz-label">②</span><span class="mdz" id="mdz_mt6_q1_1" onclick="returnChip('mt6',1,1)">&nbsp;</span><span class="mdz-label">③</span><span class="mdz" id="mdz_mt6_q1_2" onclick="returnChip('mt6',1,2)">&nbsp;</span></div>
+  <div class="btn-row">
+    <button class="check-btn" onclick="checkMiniBank('mt6',1)">✔ 答え合わせ</button>
+    <button class="sample-btn" onclick="showSample('mt6',1)">💡 答えを見る</button>
+  </div>
+  <div class="fb-msg" id="fb_mt6_q1"></div>
+  <div class="msample" id="samp_mt6_q1">答え: ①=乾球 / ②=差 / ③=湿度表</div>
+</div><div class="q-block" id="qblock_mt6_q2">
+  <h4>Q2. 乾球20℃、湿球17℃のとき、差は？</h4>
+  
+  <div class="choice-list" id="choices_mt6_q2">
+    <button class="choice-btn" onclick="pick4('mt6',2,0,1,'mt6_q2')">ア：37℃</button>
+    <button class="choice-btn" onclick="pick4('mt6',2,1,1,'mt6_q2')">イ：3℃</button>
+    <button class="choice-btn" onclick="pick4('mt6',2,2,1,'mt6_q2')">ウ：2℃</button>
+    <button class="choice-btn" onclick="pick4('mt6',2,3,1,'mt6_q2')">エ：4℃</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt6_q2"></div>
+  <div class="msample" id="samp_mt6_q2">正解: イ：3℃　20−17＝3℃です。</div>
+</div><div class="q-block" id="qblock_mt6_q3">
+  <h4>Q3. 乾球20℃、差3.0℃のときの湿度は（湿度表）？</h4>
+  
+  <div class="choice-list" id="choices_mt6_q3">
+    <button class="choice-btn" onclick="pick4('mt6',3,0,1,'mt6_q3')">ア：83%</button>
+    <button class="choice-btn" onclick="pick4('mt6',3,1,1,'mt6_q3')">イ：73%</button>
+    <button class="choice-btn" onclick="pick4('mt6',3,2,1,'mt6_q3')">ウ：63%</button>
+    <button class="choice-btn" onclick="pick4('mt6',3,3,1,'mt6_q3')">エ：53%</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt6_q3"></div>
+  <div class="msample" id="samp_mt6_q3">正解: イ：73%　湿度表を読みます。</div>
+</div><div class="q-block" id="qblock_mt6_q4">
+  <h4>Q4. 差が大きくなると湿度は？</h4>
+  
+  <div class="choice-list" id="choices_mt6_q4">
+    <button class="choice-btn" onclick="pick4('mt6',4,0,1,'mt6_q4')">ア：100%になる</button>
+    <button class="choice-btn" onclick="pick4('mt6',4,1,1,'mt6_q4')">イ：低くなる</button>
+    <button class="choice-btn" onclick="pick4('mt6',4,2,1,'mt6_q4')">ウ：変わらない</button>
+    <button class="choice-btn" onclick="pick4('mt6',4,3,1,'mt6_q4')">エ：高くなる</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt6_q4"></div>
+  <div class="msample" id="samp_mt6_q4">正解: イ：低くなる　差が大きい＝かわいている空気です。</div>
+</div><div class="q-block" id="qblock_mt6_q5">
+  <h4>Q5. 湿度表を読むのに必要な2つの数値は？</h4>
+  
+  <div class="choice-list" id="choices_mt6_q5">
+    <button class="choice-btn" onclick="pick4('mt6',5,0,2,'mt6_q5')">ア：乾球と湿球の和</button>
+    <button class="choice-btn" onclick="pick4('mt6',5,1,2,'mt6_q5')">イ：気圧と風向</button>
+    <button class="choice-btn" onclick="pick4('mt6',5,2,2,'mt6_q5')">ウ：乾球の示度と、乾球・湿球の差</button>
+    <button class="choice-btn" onclick="pick4('mt6',5,3,2,'mt6_q5')">エ：雲量と風力</button>
+    
+  </div>
+  <div class="fb-msg" id="fb_mt6_q5"></div>
+  <div class="msample" id="samp_mt6_q5">正解: ウ：乾球の示度と、乾球・湿球の差　</div>
+</div>
+      <div class="pass-banner" id="pass_mt6">🎉 この単元クリア！すばらしい！ 🎉</div>
+    </div>
+  </div>
+</div>
+</div>
+<div class="chap-nav"><a href="index.html">目次</a><a href="tenki_ch01.html">第1章 圧力と大気圧</a><a href="tenki_ch02.html" class="now">第2章 天気の観測</a><a href="tenki_ch03.html">第3章 水蒸気と湿度</a></div>
+<script>
+
+const miniState = {};
+const miniScore = {};
+const miniTotal = {};
+const miniDone = {};
+
+function toggleMini(secId) {
+  document.getElementById('mini_' + secId).classList.toggle('open');
+}
+
+function initMiniBank(secId, qNum, words, answers, freeGroups) {
+  const key = secId + '_q' + qNum;
+  miniState[key] = {
+    words: [...words], answers: [...answers],
+    filled: new Array(answers.length).fill(null),
+    chipUsed: new Array(words.length).fill(false),
+    freeGroups: freeGroups || []
+  };
+  const container = document.getElementById('chips_' + key);
+  if (!container) return;
+  container.innerHTML = '';
+  const order = [...Array(words.length).keys()];
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  order.forEach(i => {
+    const btn = document.createElement('button');
+    btn.className = 'mchip';
+    btn.id = 'chip_' + key + '_' + i;
+    btn.textContent = words[i];
+    btn.onclick = () => fillMDZ(secId, qNum, i);
+    container.appendChild(btn);
+  });
+}
+
+function fillMDZ(secId, qNum, chipIdx) {
+  const key = secId + '_q' + qNum;
+  const st = miniState[key];
+  if (!st || st.chipUsed[chipIdx]) return;
+  const emptyIdx = st.filled.findIndex(v => v === null);
+  if (emptyIdx < 0) return;
+  st.filled[emptyIdx] = chipIdx;
+  st.chipUsed[chipIdx] = true;
+  document.getElementById('chip_' + key + '_' + chipIdx).classList.add('used');
+  const mdz = document.getElementById('mdz_' + key + '_' + emptyIdx);
+  if (mdz) { mdz.textContent = st.words[chipIdx]; mdz.classList.add('filled'); }
+}
+
+function returnChip(secId, qNum, blankIdx) {
+  const key = secId + '_q' + qNum;
+  const st = miniState[key];
+  if (!st || st.filled[blankIdx] === null) return;
+  const chipIdx = st.filled[blankIdx];
+  st.filled[blankIdx] = null;
+  st.chipUsed[chipIdx] = false;
+  document.getElementById('chip_' + key + '_' + chipIdx).classList.remove('used');
+  const mdz = document.getElementById('mdz_' + key + '_' + blankIdx);
+  if (mdz) { mdz.textContent = ' '; mdz.className = 'mdz'; }
+}
+
+function checkMiniBank(secId, qNum) {
+  const key = secId + '_q' + qNum;
+  const st = miniState[key];
+  if (!st) return;
+  let allCorrect = true;
+  st.filled.forEach((chipIdx, bi) => {
+    const mdz = document.getElementById('mdz_' + key + '_' + bi);
+    if (!mdz) return;
+    if (chipIdx === null) { allCorrect = false; return; }
+    const isCorrect = (st.words[chipIdx] === st.answers[bi]);
+    if (isCorrect) { mdz.classList.remove('wrong'); mdz.classList.add('correct'); }
+    else { mdz.classList.remove('correct'); mdz.classList.add('wrong'); allCorrect = false; }
+  });
+  const fb = document.getElementById('fb_' + key);
+  if (allCorrect) {
+    if (fb) fb.textContent = '✅ 正解！すばらしい！';
+    markPass(secId, qNum - 1);
+    flowerPetals();
+  } else {
+    if (fb) fb.textContent = '❌ もう一度確認しよう！（まちがった空欄は、タップすると語句をもどせます）';
+  }
+}
+
+function showSample(secId, qNum) {
+  const el = document.getElementById('samp_' + secId + '_q' + qNum);
+  if (el) el.classList.toggle('show');
+}
+
+function pick4(secId, qNum, chosen, correct, qid) {
+  const btns = document.querySelectorAll('#choices_' + qid + ' .choice-btn');
+  btns.forEach(b => b.disabled = true);
+  const fb = document.getElementById('fb_' + qid);
+  if (chosen === correct) {
+    btns[chosen].classList.add('correct');
+    if (fb) fb.textContent = '✅ 正解！';
+    markPass(secId, qNum - 1);
+    flowerPetals();
+  } else {
+    btns[chosen].classList.add('wrong');
+    btns[correct].classList.add('correct');
+    if (fb) fb.textContent = '❌ 残念！正解は緑のボタンです。';
+  }
+  document.getElementById('samp_' + qid).classList.add('show');
+}
+
+function markPass(secId, qIdx) {
+  if (miniDone[secId][qIdx]) return;
+  miniDone[secId][qIdx] = true;
+  miniScore[secId]++;
+  const pip = document.getElementById('pip_' + secId + '_' + (qIdx + 1));
+  if (pip) pip.classList.add('pass');
+  const badge = document.getElementById('mini-badge-' + secId);
+  if (badge) badge.textContent = miniScore[secId] + ' / ' + miniTotal[secId];
+  if (miniScore[secId] >= miniTotal[secId]) {
+    const banner = document.getElementById('pass_' + secId);
+    if (banner) banner.classList.add('show');
+    fireConfetti();
+  }
+}
+
+function flowerPetals() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  const petals = [];
+  const colors = ['#38bdf8','#fb7185','#fbbf24','#34d399','#60a5fa','#a78bfa'];
+  for (let i = 0; i < 60; i++) {
+    petals.push({
+      x: Math.random() * canvas.width, y: -20 - Math.random() * 200,
+      r: 4 + Math.random() * 6, color: colors[Math.floor(Math.random() * colors.length)],
+      vx: (Math.random() - 0.5) * 3, vy: 2 + Math.random() * 3,
+      rot: Math.random() * Math.PI * 2, rotV: (Math.random() - 0.5) * 0.15
+    });
+  }
+  let frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    petals.forEach(p => {
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+      ctx.fillStyle = p.color; ctx.beginPath();
+      ctx.ellipse(0, 0, p.r, p.r * 0.55, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+      p.x += p.vx; p.y += p.vy; p.rot += p.rotV;
+    });
+    frame++;
+    if (frame < 80) requestAnimationFrame(draw);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  draw();
+}
+
+function fireConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  const pieces = [];
+  const colors = ['#38bdf8','#fbbf24','#34d399','#60a5fa','#a78bfa','#fb7185','#fff'];
+  for (let i = 0; i < 150; i++) {
+    pieces.push({
+      x: Math.random() * canvas.width, y: -20 - Math.random() * 300,
+      w: 8 + Math.random() * 10, h: 4 + Math.random() * 6,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      vx: (Math.random() - 0.5) * 5, vy: 3 + Math.random() * 4,
+      rot: Math.random() * Math.PI * 2, rotV: (Math.random() - 0.5) * 0.2
+    });
+  }
+  let frame2 = 0;
+  function draw2() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+      ctx.fillStyle = p.color; ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h); ctx.restore();
+      p.x += p.vx; p.y += p.vy; p.rot += p.rotV;
+    });
+    frame2++;
+    if (frame2 < 140) requestAnimationFrame(draw2);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  draw2();
+}
+
+miniScore['mt1'] = 0; miniTotal['mt1'] = 5; miniDone['mt1'] = [false, false, false, false, false];
+miniScore['mt2'] = 0; miniTotal['mt2'] = 5; miniDone['mt2'] = [false, false, false, false, false];
+miniScore['mt3'] = 0; miniTotal['mt3'] = 5; miniDone['mt3'] = [false, false, false, false, false];
+miniScore['mt4'] = 0; miniTotal['mt4'] = 5; miniDone['mt4'] = [false, false, false, false, false];
+miniScore['mt5'] = 0; miniTotal['mt5'] = 5; miniDone['mt5'] = [false, false, false, false, false];
+miniScore['mt6'] = 0; miniTotal['mt6'] = 5; miniDone['mt6'] = [false, false, false, false, false];
+initMiniBank('mt1',5,["快晴", "晴れ", "くもり"],["快晴", "晴れ", "くもり"],[]);
+initMiniBank('mt2',5,["快晴", "晴れ", "雨"],["快晴", "晴れ", "雨"],[]);
+initMiniBank('mt3',5,["北東", "南東", "南西"],["北東", "南東", "南西"],[]);
+initMiniBank('mt4',5,["風向", "風力"],["風向", "風力"],[]);
+initMiniBank('mt5',5,["蒸発", "うばう"],["蒸発", "うばう"],[]);
+initMiniBank('mt6',1,["乾球", "差", "湿度表"],["乾球", "差", "湿度表"],[]);
+</script>
+</body></html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>中3理科 天気</title><style>
+:root{
+  --pri:#0284c7;--pri-d:#075985;--pri-l:#e0f2fe;
+  --acc:#0e7490;--acc-d:#155e75;--acc-bg:#ecfeff;
+  --gray:#6b7280;--card:#fff;
+  --radius:14px;--shadow:0 4px 18px rgba(0,0,0,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#f0f9ff;font-family:'BIZ UDGothic','Helvetica Neue',Arial,'Hiragino Sans','Yu Gothic',sans-serif;color:#1e293b;}
+header{background:linear-gradient(135deg,var(--pri-d),var(--pri));color:#fff;text-align:center;padding:28px 20px 22px;}
+header h1{font-size:clamp(1.3rem,4vw,2rem);font-weight:900;letter-spacing:.04em;}
+header p{margin-top:6px;font-size:.93rem;opacity:.88;}
+.units{max-width:860px;margin:30px auto;padding:0 16px;}
+.unit-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:32px;overflow:hidden;}
+.unit-header{background:linear-gradient(90deg,var(--pri-d),var(--pri));color:#fff;padding:14px 22px;display:flex;align-items:center;gap:12px;}
+.unit-num{background:#fff;color:var(--pri-d);font-weight:900;font-size:1.1rem;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.unit-header h2{font-size:1.1rem;font-weight:800;}
+.unit-body{padding:22px;}
+.exp-img{margin:14px 0;text-align:center;}
+.exp-img img{max-width:min(100%,520px);border-radius:10px;margin:6px auto;display:block;}
+.exp-img svg{max-width:100%;height:auto;}
+.exp-img .cap{font-size:.82rem;color:var(--gray);margin-top:2px;}
+.exp-text{line-height:1.95;font-size:.97rem;margin:10px 0;}
+.exp-text p{margin-bottom:.85em;}
+.exp-text h3{font-size:.97rem;color:var(--pri-d);margin:1em 0 .5em;border-left:3px solid var(--pri);padding-left:8px;font-weight:800;}
+.pt-box{background:#dcfce7;border-left:4px solid #16a34a;border-radius:0 8px 8px 0;padding:11px 15px;margin:10px 0;font-size:.91rem;line-height:1.8;}
+.warn-box{background:#fee2e2;border-left:4px solid #dc2626;border-radius:0 8px 8px 0;padding:11px 15px;margin:10px 0;font-size:.91rem;line-height:1.8;}
+.amber-box{background:#fef3c7;border-left:4px solid #b45309;border-radius:0 8px 8px 0;padding:11px 15px;margin:10px 0;font-size:.91rem;line-height:1.8;}
+.info-box{background:#f0fdff;border-left:4px solid #0e7490;border-radius:0 8px 8px 0;padding:11px 15px;margin:10px 0;font-size:.91rem;line-height:1.8;}
+.eq-box{background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:14px;margin:10px 0;text-align:center;}
+.eq-box .eq{font-size:1rem;font-weight:800;color:var(--pri-d);letter-spacing:.03em;line-height:1.9;}
+.exp-tbl{width:100%;border-collapse:collapse;font-size:.85rem;margin:10px 0;}
+.exp-tbl th{background:var(--pri);color:#fff;padding:8px 10px;text-align:center;}
+.exp-tbl td{padding:8px 10px;border-bottom:1px solid #e5e7eb;vertical-align:top;line-height:1.65;text-align:center;}
+.exp-tbl tr:nth-child(even) td{background:#f9fafb;}
+.exp-tbl .nc{font-weight:700;white-space:nowrap;background:#f0f9ff;}
+.exp-tbl.small{font-size:.8rem;}
+.exp-tbl.small td,.exp-tbl.small th{padding:5px 6px;}
+.tbl-wrap{overflow-x:auto;}
+.kw-list{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 16px;}
+.kw{background:var(--pri-l);color:var(--pri-d);border-radius:20px;padding:4px 14px;font-size:.88rem;font-weight:700;}
+.mini-btn{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;background:var(--acc-bg);border:2.5px solid var(--acc);color:var(--acc-d);font-size:.97rem;font-weight:800;padding:10px 22px;border-radius:40px;margin:14px 0 0;transition:.2s;}
+.mini-btn:hover{background:var(--acc);color:#fff;}
+.mini-section{display:none;margin-top:16px;background:#f0fdfa;border:2px solid #99f6e4;border-radius:12px;padding:18px;}
+.mini-section.open{display:block;}
+.q-block{margin-bottom:26px;}
+.q-block h4{font-size:.98rem;font-weight:800;color:var(--pri-d);margin-bottom:10px;line-height:1.7;}
+.mchips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0;}
+.mchip{background:#fff;border:2.5px solid var(--acc);color:var(--acc-d);border-radius:20px;padding:5px 16px;font-size:.93rem;font-weight:700;cursor:pointer;transition:.18s;font-family:inherit;}
+.mchip:hover{background:var(--acc);color:#fff;}
+.mchip.used{opacity:.35;pointer-events:none;}
+.mdz-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:8px 0;}
+.mdz{display:inline-flex;align-items:center;justify-content:center;min-width:80px;height:36px;border:2.5px dashed var(--acc);border-radius:8px;padding:0 10px;font-size:.93rem;font-weight:700;cursor:pointer;color:var(--acc-d);transition:.18s;background:#fff;}
+.mdz.filled{border-style:solid;background:#cffafe;}
+.mdz.correct{border-color:#16a34a;background:#dcfce7;color:#166534;}
+.mdz.wrong{border-color:#dc2626;background:#fee2e2;color:#991b1b;}
+.mdz-label{font-size:.9rem;color:#374151;}
+.choice-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0;}
+@media(max-width:480px){.choice-list{grid-template-columns:1fr;}}
+.choice-btn{padding:10px 14px;border:2.5px solid #d1d5db;border-radius:10px;background:#fff;font-size:.93rem;cursor:pointer;text-align:left;transition:.18s;font-family:inherit;color:#1e293b;line-height:1.6;}
+.choice-btn svg{vertical-align:middle;margin-right:6px;}
+.choice-btn:hover{border-color:var(--pri);background:var(--pri-l);}
+.choice-btn.correct{border-color:#16a34a;background:#dcfce7;color:#166534;font-weight:700;}
+.choice-btn.wrong{border-color:#dc2626;background:#fee2e2;color:#991b1b;}
+.choice-btn:disabled{cursor:default;}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.check-btn{background:var(--pri);color:#fff;border:none;border-radius:22px;padding:8px 22px;font-size:.93rem;font-weight:700;cursor:pointer;transition:.18s;font-family:inherit;}
+.check-btn:hover{background:var(--pri-d);}
+.sample-btn{background:#fff;color:var(--gray);border:2px solid #d1d5db;border-radius:22px;padding:8px 22px;font-size:.93rem;font-weight:700;cursor:pointer;transition:.18s;font-family:inherit;}
+.sample-btn:hover{background:#f3f4f6;}
+.msample{display:none;background:#fef9c3;border:1.5px solid #fbbf24;border-radius:8px;padding:8px 14px;font-size:.9rem;margin-top:8px;line-height:1.8;}
+.msample.show{display:block;}
+.fb-msg{font-size:.9rem;margin-top:6px;font-weight:600;}
+.mini-score-row{display:flex;gap:6px;align-items:center;margin-bottom:10px;}
+.mini-score-pip{width:14px;height:14px;border-radius:50%;background:#e5e7eb;border:2px solid #d1d5db;transition:.3s;}
+.mini-score-pip.pass{background:#16a34a;border-color:#166534;}
+.pass-banner{display:none;background:linear-gradient(90deg,#166534,#16a34a);color:#fff;text-align:center;padding:16px;border-radius:10px;margin-top:16px;font-size:1.1rem;font-weight:900;}
+.pass-banner.show{display:block;}
+canvas#confetti-canvas{position:fixed;top:0;left:0;pointer-events:none;width:100%;height:100%;z-index:9999;}
+.q-img{max-width:100%;border-radius:10px;margin:6px auto 10px;display:block;}
+.q-fig{text-align:center;margin:6px 0 10px;}
+.q-fig svg{max-width:100%;height:auto;}
+.q-note{font-size:.9rem;color:#334155;margin-bottom:6px;line-height:1.9;}
+.src{font-size:.78rem;color:#6b7280;font-weight:600;margin-left:6px;}
+.chap-nav{max-width:860px;margin:0 auto 40px;padding:0 16px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;}
+.chap-nav a{background:#fff;border:2px solid var(--pri);color:var(--pri-d);text-decoration:none;font-weight:800;padding:8px 18px;border-radius:24px;font-size:.92rem;}
+.chap-nav a.now{background:var(--pri);color:#fff;}
+.exp-tbl td b{color:var(--pri-d);}
+.sym-row{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin:10px 0;}
+.sym-item{text-align:center;font-size:.82rem;line-height:1.5;min-width:84px;}
+.sym-item svg{display:block;margin:0 auto 2px;}
+
+.ch-card{background:#fff;border-radius:14px;box-shadow:var(--shadow);margin:20px auto;max-width:820px;padding:20px 24px;}
+.ch-card h2{color:var(--pri-d);margin-bottom:6px;}.ch-card a{color:var(--pri-d);font-weight:800;}
+.ch-card ul{margin:8px 0 0 1.2em;line-height:1.9;}.part{max-width:820px;margin:26px auto 0;font-weight:800;color:var(--pri-d);font-size:1.2em;}
+</style></head><body><header><h1>🌦️ 中学理科 天気</h1><p>江原予備校 オリジナル教材</p></header><div class="units">
+<div class="part">天気(1)</div><div class="ch-card"><h2><a href="tenki_ch01.html">第1章 圧力と大気圧</a></h2><ul><li>圧力ってなに？</li><li>圧力の計算</li><li>大気と大気圧</li><li>大気圧の実験（空き缶）</li><li>気圧の単位 hPa</li></ul></div><div class="ch-card"><h2><a href="tenki_ch02.html">第2章 天気の観測</a></h2><ul><li>雲量と天気</li><li>天気記号</li><li>風向と十六方位</li><li>風力と矢羽根</li><li>気温と乾湿計</li><li>湿度表の読み方</li></ul></div><div class="ch-card"><h2><a href="tenki_ch03.html">第3章 水蒸気と湿度</a></h2><ul><li>飽和水蒸気量</li><li>湿度の計算</li><li>露点</li><li>露点の計算</li><li>気温と湿度の関係</li></ul></div><div class="part">天気(2)　低気圧・高気圧・前線</div><div class="ch-card"><h2><a href="tenki2_ch01.html">第1章 雲・霧・露</a></h2><ul><li>雲の発生の実験</li><li>雲のできるしくみ</li><li>雨や雪のできかた</li><li>空気をぬく実験</li><li>上昇する空気の温度と雲のできる高さ</li><li>霧・霜・露</li></ul></div><div class="ch-card"><h2><a href="tenki2_ch02.html">第2章 等圧線と高気圧・低気圧</a></h2><ul><li>等圧線</li><li>高気圧と低気圧</li><li>風の吹き方（北半球）</li><li>気流と天気の関係</li></ul></div><div class="ch-card"><h2><a href="tenki2_ch03.html">第3章 前線と天気の変化</a></h2><ul><li>気団と前線</li><li>寒冷前線と温暖前線</li><li>閉塞前線と停滞前線</li><li>前線の通過と天気の変化</li></ul></div><div class="ch-card"><h2><a href="tenki2_ch04.html">第4章 日本の気団と大気の動き</a></h2><ul><li>日本周辺の気団</li><li>日本の四季の天気</li><li>大気の動きと海陸風</li></ul></div></div></body></html>
